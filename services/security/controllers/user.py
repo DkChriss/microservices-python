@@ -1,8 +1,8 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
-from fastapi.responses import JSONResponse
-from sqlalchemy.exc import IntegrityError
+from fastapi_pagination import paginate, Params
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from services.security.schemas.user import UserResponse, UserStore, UserUpdate
 from services.security.utils.dependency import  get_db
@@ -14,6 +14,38 @@ from services.security.utils.mapper import map_to_schema
 
 router = APIRouter()
 
+@router.get("/users", status_code=status.HTTP_200_OK)
+def lista(
+        page: int = Query(1, ge=1, description="Numero de pagina"),
+        size: int = Query(10, ge=1, le=100, description="Usuarios por pagina"),
+        db: Session = Depends(get_db)
+):
+    try:
+        params = Params(page=page, size=size)
+        query = db.query(User)
+        response = paginate(query.all(), params)
+
+        next_page = page + 1 if page * size < response.total else None
+        prev_page = page - 1 if page > 1 else None
+
+        return {
+            "mensaje": "Se ha obtenido la lista de usuarios correctamente",
+            "lista": response.items,
+            "total": response.total,
+            "pagina": response.page,
+            "tamaño": response.size,
+            "links": {
+                "siguiente": f"/api/v1/users?page={next_page}&size={size}" if next_page else None,
+                "anterior": f"/api/v1/users?page={prev_page}&size={size}" if prev_page else None,
+                "primera": f"/api/v1/users?page=1&size={size}",
+                "ultima": f"/api/v1/users?page={response.pages}&size={size}"
+            }
+        }
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error while fetching user list: {str(e)}"
+        )
 #CREAR NUEVO USUARIO
 @router.post(
     "/users",
