@@ -26,7 +26,6 @@ class UserUpdate(BaseModel):
     contraseña: str | None
     celular: int | None
     token_firebase: str | None
-
     class Config:
         from_attributes = True
 

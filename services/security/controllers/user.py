@@ -73,7 +73,6 @@ def show(id: int, db: Session = Depends(get_db)):
 )
 def update(id: int ,userUpdate: UserUpdate, db: Session = Depends(get_db)):
     try:
-        print(id)
         user = db.query(User).filter(User.id == id).first()
         if user is None:
             raise HTTPException(
@@ -84,9 +83,10 @@ def update(id: int ,userUpdate: UserUpdate, db: Session = Depends(get_db)):
             setattr(user, key, value)
         db.commit()
         db.refresh(user)
+        response = map_to_schema(user, UserStore)
         return {
             "mensaje": "Se ha actualizado el usuario correctamente",
-            "usuario": map_to_schema(user, UserStore)
+            "usuario": response
         }
     except IntegrityError as e:
         db.rollback()
@@ -108,7 +108,7 @@ def destroy(id: int, db: Session = Depends(get_db)):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el usuario que desea eliminar"
             )
-        user.delete()
+        db.delete(user)
         db.commit()
         return {
             "mensaje": "Se ha eliminado el usuario correctamente"
