@@ -1,9 +1,9 @@
 from pydantic import BaseModel, EmailStr
 
 
-class UserRequest(BaseModel):
-    cellphone: int
-    password: str
+class TokenData(BaseModel):
+    username: str | None = None
+    scopes: list[str] = []
 
 class Token(BaseModel):
     access_token: str
