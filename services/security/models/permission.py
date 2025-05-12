@@ -1,0 +1,17 @@
+from sqlalchemy import Column, Integer, PrimaryKeyConstraint, Text, Boolean, DateTime
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+from services.security.config.database import Base
+import datetime
+
+class Permission(Base):
+    __tablename__ = 'permissions'
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    name: Mapped[str] = mapped_column(Text, unique=True)
+    action: Mapped[str] = mapped_column(Text, unique=True)
+    model: Mapped[str] = mapped_column(Text, unique=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
+    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    roles = relationship("Role", backref="roles", cascade="all, delete-orphan")
+    users = relationship("User", backref="users", cascade="all, delete-orphan")
