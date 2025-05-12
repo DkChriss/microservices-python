@@ -27,7 +27,7 @@ oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
 
 @router.post("/auth/login", status_code=status.HTTP_200_OK, response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Token:
-    user = db.query(User).filter(User.celular == form_data.username).first()
+    user = db.query(User).filter(User.phone == form_data.username).first()
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -35,12 +35,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         )
 
     try:
-        if not verify_password(form_data.password, user.contraseña):
+        if not verify_password(form_data.password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="El numero de celular o contraseña estan incorrectas"
             )
-        token = create_access_token(user.celular, ACCESS_TOKEN_EXPIRE, user.id)
+        token = create_access_token(user.phone, ACCESS_TOKEN_EXPIRE, user.id)
         return {
             'access_token': token,
             'token_type': 'bearer',
