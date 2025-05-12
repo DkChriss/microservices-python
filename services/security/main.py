@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from services.security.config.database import Base, engine
 from services.security.controllers.user import router as user_router
+from services.security.controllers.auth import router as auth_router
 from fastapi_pagination import add_pagination
 
 app = FastAPI()
@@ -22,4 +23,5 @@ app.add_middleware(
 Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router, prefix="/api/v1", tags=["users"])
+app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 add_pagination(app)

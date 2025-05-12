@@ -2,17 +2,16 @@ import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
 from fastapi_pagination import paginate, Params
+from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from services.security.schemas.user import UserResponse, UserStore, UserUpdate
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
-
-import bcrypt
-
 from services.security.utils.mapper import map_to_schema
 
 router = APIRouter()
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 @router.get("/users", status_code=status.HTTP_200_OK)
 def lista(
@@ -44,7 +43,7 @@ def lista(
     except SQLAlchemyError as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error while fetching user list: {str(e)}"
+            detail=f"Error al obtener la lista de usuarios: {str(e)}"
         )
 #CREAR NUEVO USUARIO
 @router.post(
@@ -54,7 +53,7 @@ def lista(
 )
 def store(user: UserStore, db: Session = Depends(get_db)):
     try:
-        hashed_password = bcrypt.hashpw(user.contraseña.encode("utf-8"), bcrypt.gensalt())
+        hashed_password = bcrypt_context.hash(user.contraseña)
         user.contraseña = hashed_password
         newUser = User(**user.dict())
         db.add(newUser)

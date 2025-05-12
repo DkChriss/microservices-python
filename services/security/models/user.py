@@ -16,7 +16,7 @@ class User(Base):
     avatar: Mapped[str] = mapped_column(Text)
     estado: Mapped[bool] = mapped_column(Boolean, default=False)
     contraseña: Mapped[str] = mapped_column(Text)
-    celular: Mapped[int] = mapped_column(Integer)
+    celular: Mapped[int] = mapped_column(Integer, unique=True)
     token_firebase: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

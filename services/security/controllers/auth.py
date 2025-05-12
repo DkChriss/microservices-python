@@ -1,0 +1,61 @@
+from dotenv import load_dotenv
+from jwt import PyJWTError
+
+import os
+import jwt
+
+from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from passlib.context import CryptContext
+from datetime import timedelta, datetime
+from sqlalchemy.orm import Session
+
+from services.security.models.user import User
+from services.security.schemas.auth import Token
+from services.security.utils.dependency import get_db
+
+router = APIRouter()
+
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE = timedelta(minutes=60)
+
+bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
+
+@router.post("/auth/login", status_code=status.HTTP_200_OK, response_model=Token)
+def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Token:
+    user = db.query(User).filter(User.celular == form_data.username).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="El numero de celular o contraseña estan incorrectas"
+        )
+
+    try:
+        if not verify_password(form_data.password, user.contraseña):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="El numero de celular o contraseña estan incorrectas"
+            )
+        token = create_access_token(user.celular, ACCESS_TOKEN_EXPIRE, user.id)
+        return {
+            'access_token': token,
+            'token_type': 'bearer',
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al verificar las credenciales {e}"
+        )
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    return bcrypt_context.verify(plain_password, hashed_password)
+
+def create_access_token(username: int, expires_delta: timedelta,  user_id: int):
+    encode = {'sub': username, 'id': user_id}
+    expires = datetime.utcnow() + expires_delta
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
