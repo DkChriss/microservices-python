@@ -2,29 +2,29 @@ from pydantic import BaseModel, EmailStr
 from typing import Optional, List, Union
 
 class UserStore(BaseModel):
-    codigo: str
-    nombre: str
-    apellido_paterno: str
-    apellido_materno: str
-    correo_electronico: EmailStr
+    code: str
+    name: str
+    last_name: str
+    second_surname: str
+    email: EmailStr
     avatar: str
-    estado: bool
-    contraseña: str
-    celular: int
+    status: bool
+    password: str
+    phone: int
     token_firebase: str = None
     class Config:
         from_attributes = True
 
 class UserUpdate(BaseModel):
-    codigo: str | None
-    nombre: str | None
-    apellido_paterno:  str | None
-    apellido_materno: str | None
-    correo_electronico: EmailStr | None
+    code: str | None
+    name: str | None
+    last_name:  str | None
+    second_surname: str | None
+    email: EmailStr | None
     avatar: str | None
-    estado: bool | None
-    contraseña: str | None
-    celular: int | None
+    status: bool | None
+    password: str | None
+    phone: int | None
     token_firebase: str | None
     class Config:
         from_attributes = True

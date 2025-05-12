@@ -28,16 +28,16 @@ def lista(
         prev_page = page - 1 if page > 1 else None
 
         return {
-            "mensaje": "Se ha obtenido la lista de usuarios correctamente",
-            "lista": response.items,
+            "message": "Se ha obtenido la lista de usuarios correctamente",
+            "data": response.items,
             "total": response.total,
-            "pagina": response.page,
-            "tamaño": response.size,
+            "page": response.page,
+            "size": response.size,
             "links": {
-                "siguiente": f"/api/v1/users?page={next_page}&size={size}" if next_page else None,
-                "anterior": f"/api/v1/users?page={prev_page}&size={size}" if prev_page else None,
-                "primera": f"/api/v1/users?page=1&size={size}",
-                "ultima": f"/api/v1/users?page={response.pages}&size={size}"
+                "next": f"/api/v1/users?page={next_page}&size={size}" if next_page else None,
+                "previous": f"/api/v1/users?page={prev_page}&size={size}" if prev_page else None,
+                "first": f"/api/v1/users?page=1&size={size}",
+                "last": f"/api/v1/users?page={response.pages}&size={size}"
             }
         }
     except SQLAlchemyError as e:
@@ -53,16 +53,16 @@ def lista(
 )
 def store(user: UserStore, db: Session = Depends(get_db)):
     try:
-        hashed_password = bcrypt_context.hash(user.contraseña)
-        user.contraseña = hashed_password
-        newUser = User(**user.dict())
-        db.add(newUser)
+        hashed_password = bcrypt_context.hash(user.password)
+        user.password = hashed_password
+        new_user = User(**user.dict())
+        db.add(new_user)
         db.commit()
-        db.refresh(newUser)
+        db.refresh(new_user)
 
         return {
-            "mensaje": "Se ha registrado el usuario correctamente",
-            "usuario": newUser
+            "message": "Se ha registrado el usuario correctamente",
+            "data": new_user
         }
     except IntegrityError as e:
         db.rollback()
@@ -86,8 +86,8 @@ def show(id: int, db: Session = Depends(get_db)):
             )
 
         return {
-            "mensaje": "Se ha obtenido el usuario correctamente",
-            "usuario": user
+            "message": "Se ha obtenido el usuario correctamente",
+            "data": user
         }
     except IntegrityError as e:
         db.rollback()
@@ -102,22 +102,22 @@ def show(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["users"]
 )
-def update(id: int ,userUpdate: UserUpdate, db: Session = Depends(get_db)):
+def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
     try:
-        user = db.query(User).filter(User.id == id).first()
-        if user is None:
+        current_user = db.query(User).filter(User.id == id).first()
+        if current_user is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el usuario que desea actualizar"
             )
-        for key, value in userUpdate.dict(exclude_unset=True).items():
-            setattr(user, key, value)
+        for key, value in user_update.dict(exclude_unset=True).items():
+            setattr(current_user, key, value)
         db.commit()
-        db.refresh(user)
-        response = map_to_schema(user, UserStore)
+        db.refresh(current_user)
+        response = map_to_schema(current_user, UserStore)
         return {
-            "mensaje": "Se ha actualizado el usuario correctamente",
-            "usuario": response
+            "message": "Se ha actualizado el usuario correctamente",
+            "data": response
         }
     except IntegrityError as e:
         db.rollback()
@@ -142,7 +142,7 @@ def destroy(id: int, db: Session = Depends(get_db)):
         db.delete(user)
         db.commit()
         return {
-            "mensaje": "Se ha eliminado el usuario correctamente"
+            "message": "Se ha eliminado el usuario correctamente"
         }
     except IntegrityError as e:
         db.rollback()
