@@ -1,0 +1,10 @@
+{
+  "model": "roles",
+  "data": [
+    {
+      "id": 1,
+      "name": "admin",
+      "description": "role can do everything"
+    }
+  ]
+}

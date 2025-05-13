@@ -1,0 +1,80 @@
+{
+  "model": "permissions",
+  "data": [
+    {
+      "id": 1,
+      "name": "view users",
+      "model": "users"
+    },
+    {
+      "id": 2,
+      "name": "create users",
+      "model": "users"
+    },
+    {
+      "id": 3,
+      "name": "show users",
+      "model": "users"
+    },
+    {
+      "id": 4,
+      "name": "update users",
+      "model": "users"
+    },
+    {
+      "id": 5,
+      "name": "delete users",
+      "model": "users"
+    },
+    {
+      "id": 6,
+      "name": "view roles",
+      "model": "roles"
+    },
+    {
+      "id": 7,
+      "name": "store roles",
+      "model": "roles"
+    },
+    {
+      "id": 8,
+      "name": "show roles",
+      "model": "roles"
+    },
+    {
+      "id": 9,
+      "name": "update roles",
+      "model": "roles"
+    },
+    {
+      "id": 10,
+      "name": "delete roles",
+      "model": "roles"
+    },
+    {
+      "id": 11,
+      "name": "view permissions",
+      "model": "permissions"
+    },
+    {
+      "id": 12,
+      "name": "store permissions",
+      "model": "permissions"
+    },
+    {
+      "id": 13,
+      "name": "show permissions",
+      "model": "permissions"
+    },
+    {
+      "id": 14,
+      "name": "update permissions",
+      "model": "permissions"
+    },
+    {
+      "id": 15,
+      "name": "delete permissions",
+      "model": "permissions"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "model": "models.users",
+  "data": [
+    {
+      "id": 1,
+      "code": "1",
+      "name": "admin",
+      "last_name": "admin",
+      "second_surname": "admin",
+      "email": "admin@admin.com",
+      "avatar": "admin-avatar",
+      "status": true,
+      "password": "admin-password",
+      "phone": 123456789,
+      "token-firebase": "token-firebase"
+    }
+  ]
+}
