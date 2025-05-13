@@ -12,6 +12,3 @@ class Permission(Base):
     model: Mapped[str] = mapped_column(Text, unique=True)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
-
-    roles = relationship("Role", backref="roles", cascade="all, delete-orphan")
-    users = relationship("User", backref="users", cascade="all, delete-orphan")

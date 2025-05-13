@@ -13,8 +13,12 @@ from services.security.utils.mapper import map_to_schema
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
-@router.get("/users", status_code=status.HTTP_200_OK)
-def lista(
+@router.get(
+    "/users",
+    status_code=status.HTTP_200_OK,
+    tags=["users"]
+)
+def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Usuarios por pagina"),
         db: Session = Depends(get_db)
@@ -40,7 +44,7 @@ def lista(
                 "last": f"/api/v1/users?page={response.pages}&size={size}"
             }
         }
-    except SQLAlchemyError as e:
+    except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener la lista de usuarios: {str(e)}"
@@ -74,6 +78,7 @@ def store(user: UserStore, db: Session = Depends(get_db)):
 #OBTENER EL USUARIO
 @router.get(
     "/users/{id}",
+    status_code=status.HTTP_200_OK,
     tags=["users"]
 )
 def show(id: int, db: Session = Depends(get_db)):
@@ -93,7 +98,7 @@ def show(id: int, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Error al registrar el usuario: {e}"
+            detail=f"Error al obtener el usuario: {e}"
         )
 
 #ACTUALIZAR USUARIO
@@ -129,6 +134,7 @@ def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
 #ELIMINAR USUARIO
 @router.delete(
     "/users/{id}",
+    status_code=status.HTTP_200_OK,
     tags=["users"]
 )
 def destroy(id: int, db: Session = Depends(get_db)):

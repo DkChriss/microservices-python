@@ -20,6 +20,3 @@ class User(Base):
     token_firebase: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
-
-    permissions =  relationship("Permission", backref="permissions", cascade="all, delete-orphan")
-    roles = relationship("Role", backref="roles", cascade="all, delete-orphan")
