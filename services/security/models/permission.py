@@ -9,7 +9,7 @@ class Permission(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(Text, unique=True)
     action: Mapped[str] = mapped_column(Text, unique=True)
-    model: Mapped[str] = mapped_column(Text, unique=True)
+    model: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
