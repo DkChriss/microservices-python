@@ -4,13 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
-from sqlalchemy.sql.functions import current_user
-
 from services.security.models.permission import Permission
 from services.security.models.role import Role
-from services.security.schemas.user import UserStore, UserUpdate, UserRoles, UserPermissions
+from services.security.schemas.user import UserStore, UserUpdate, UserRoles, UserPermissions, UserResponse
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
 from services.security.utils.mapper import map_to_schema
@@ -37,7 +34,7 @@ def list(
 
         return {
             "message": "Se ha obtenido la lista de usuarios correctamente",
-            "data": response.items,
+            "data": [UserResponse.from_attributes(user) for user in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -209,5 +206,5 @@ def assign_permissions(user_permissions: UserPermissions, db: Session = Depends(
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error al asignar los permisos al usuario"
+            detail=f"Error al asignar los permisos al usuario {e}"
         )

@@ -30,6 +30,20 @@ class UserUpdate(BaseModel):
     class Config:
         from_attributes = True
 
+class UserResponse(BaseModel):
+    id: int
+    code: str
+    name: str
+    last_name: str
+    second_surname: str
+    email: EmailStr
+    avatar: str
+    status: bool
+    phone: int
+
+    class Config:
+        from_attributes = True
+
 class UserRoles(BaseModel):
     user_id: int
     roles_ids: List[int]
