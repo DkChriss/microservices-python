@@ -5,7 +5,7 @@ import os
 import jwt
 
 from fastapi import Depends, FastAPI, HTTPException, status, APIRouter
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm, SecurityScopes
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
@@ -33,14 +33,15 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             status_code=status.HTTP_404_NOT_FOUND,
             detail="El numero de celular o contraseña estan incorrectas"
         )
-
     try:
         if not verify_password(form_data.password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="El numero de celular o contraseña estan incorrectas"
             )
-        token = create_access_token(user.phone, ACCESS_TOKEN_EXPIRE, user.id)
+        roles = [role.name for role in user.roles]
+        permissions = [permission.action for permission in user.permissions]
+        token = create_access_token(user.phone, ACCESS_TOKEN_EXPIRE, user.id, permissions, roles)
         return {
             'access_token': token,
             'token_type': 'bearer',
@@ -54,8 +55,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(plain_password, hashed_password)
 
-def create_access_token(username: int, expires_delta: timedelta,  user_id: int):
-    encode = {'sub': username, 'id': user_id}
+def create_access_token(username: int, expires_delta: timedelta,  user_id: int, scopes: list[str], roles: list[str]):
+    encode = {'sub': username, 'id': user_id, 'scopes': scopes, 'roles': roles}
     expires = datetime.utcnow() + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
