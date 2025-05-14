@@ -1,11 +1,16 @@
 import json
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
-from fastapi_pagination import paginate, Params
+from fastapi_pagination import Params
+from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session
-from services.security.schemas.user import UserResponse, UserStore, UserUpdate
+from sqlalchemy.sql.functions import current_user
+
+from services.security.models.permission import Permission
+from services.security.models.role import Role
+from services.security.schemas.user import UserStore, UserUpdate, UserRoles, UserPermissions
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
 from services.security.utils.mapper import map_to_schema
@@ -25,8 +30,7 @@ def list(
 ):
     try:
         params = Params(page=page, size=size)
-        query = db.query(User)
-        response = paginate(query.all(), params)
+        response = paginate(db.query(User), params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
@@ -49,7 +53,6 @@ def list(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener la lista de usuarios: {str(e)}"
         )
-#CREAR NUEVO USUARIO
 @router.post(
     "/users",
     status_code=status.HTTP_201_CREATED,
@@ -68,14 +71,12 @@ def store(user: UserStore, db: Session = Depends(get_db)):
             "message": "Se ha registrado el usuario correctamente",
             "data": new_user
         }
-    except IntegrityError as e:
+    except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al registrar el usuario: {e}"
         )
-
-#OBTENER EL USUARIO
 @router.get(
     "/users/{id}",
     status_code=status.HTTP_200_OK,
@@ -94,14 +95,12 @@ def show(id: int, db: Session = Depends(get_db)):
             "message": "Se ha obtenido el usuario correctamente",
             "data": user
         }
-    except IntegrityError as e:
+    except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al obtener el usuario: {e}"
         )
-
-#ACTUALIZAR USUARIO
 @router.put(
     "/users/{id}",
     status_code=status.HTTP_200_OK,
@@ -115,6 +114,7 @@ def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el usuario que desea actualizar"
             )
+        user_update.id = id
         for key, value in user_update.dict(exclude_unset=True).items():
             setattr(current_user, key, value)
         db.commit()
@@ -124,14 +124,12 @@ def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
             "message": "Se ha actualizado el usuario correctamente",
             "data": response
         }
-    except IntegrityError as e:
+    except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al actualizar el usuario: {e}"
         )
-
-#ELIMINAR USUARIO
 @router.delete(
     "/users/{id}",
     status_code=status.HTTP_200_OK,
@@ -150,9 +148,66 @@ def destroy(id: int, db: Session = Depends(get_db)):
         return {
             "message": "Se ha eliminado el usuario correctamente"
         }
-    except IntegrityError as e:
+    except Exception as e:
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al eliminar el usuario: {e}"
+        )
+
+@router.post(
+    '/users/assign-roles',
+    status_code=status.HTTP_201_CREATED,
+    tags=["users"]
+)
+def assign_roles(user_roles:UserRoles, db: Session = Depends(get_db)):
+    try:
+        current_user = db.query(User).filter(User.id == user_roles.user_id).first()
+        if current_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el usuario que desea asignar los roles"
+            )
+        for id in user_roles.roles_ids:
+            current_role = db.query(Role).filter(Role.id == id).first()
+            if current_role is not None:
+                current_user.roles.append(current_role)
+                db.commit()
+        return {
+            "message": "Se ha asignado los roles al usuario correctamente",
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Error al asignar los roles al usuario: {e}"
+        )
+
+@router.post(
+    '/users/assign-permissions',
+    status_code=status.HTTP_201_CREATED,
+    tags=["users"]
+)
+def assign_permissions(user_permissions: UserPermissions, db: Session = Depends(get_db)):
+    try:
+        current_user = db.query(User).filter(User.id == user_permissions.user_id).first()
+        if current_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail='No existe el usuario que desea asignar los permissions'
+            )
+        for id in user_permissions.permissions_ids:
+            current_permission = db.query(Permission).filter(Permission.id == id).first()
+            if current_permission is not None:
+                current_user.permissions.append(current_permission)
+                db.commit()
+
+        return {
+            "message": "Se ha asignado los permissions al usuario correctamente"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error al asignar los permisos al usuario"
         )

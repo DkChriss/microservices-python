@@ -16,6 +16,7 @@ class UserStore(BaseModel):
         from_attributes = True
 
 class UserUpdate(BaseModel):
+    id: int | None
     code: str | None
     name: str | None
     last_name:  str | None
@@ -29,6 +30,10 @@ class UserUpdate(BaseModel):
     class Config:
         from_attributes = True
 
-class UserResponse(BaseModel):
-    message: str
-    data: Union[UserStore, UserUpdate]
+class UserRoles(BaseModel):
+    user_id: int
+    roles_ids: List[int]
+
+class UserPermissions(BaseModel):
+    user_id: int
+    permissions_ids: List[int]

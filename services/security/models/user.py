@@ -4,6 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 import datetime
 
+from services.security.models.role import Role
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -20,3 +23,6 @@ class User(Base):
     token_firebase: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    roles = relationship("Role", secondary='user_has_roles', back_populates="users", cascade="all")
+    permissions = relationship("Permission", secondary='user_has_permissions', back_populates="users", cascade="all")
