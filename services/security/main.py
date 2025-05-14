@@ -12,6 +12,9 @@ from services.security.models.permission import Permission
 from services.security.models.user import User
 from services.security.models.role import Role
 from services.security.models.associations import user_has_roles, user_has_permissions, role_has_permissions
+#SEEDERS
+from services.security.seeders.seed import seed
+
 app = FastAPI()
 
 origins = [
@@ -33,7 +36,8 @@ role_has_permissions.drop(engine, checkfirst=True)
 # CREATE TABLES
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
-
+# SEEDING
+seed()
 #ROUTES
 app.include_router(user_router, prefix="/api/v1", tags=["users"])
 app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
