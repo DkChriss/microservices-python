@@ -11,9 +11,7 @@ from services.security.controllers.role import router as role_router
 from services.security.models.permission import Permission
 from services.security.models.user import User
 from services.security.models.role import Role
-from services.security.models.user_role import UserRole
-from services.security.models.role_permission import RolePermission
-from services.security.models.user_permission import UserPermission
+from services.security.models.associations import user_has_roles, user_has_permissions, role_has_permissions
 app = FastAPI()
 
 origins = [
@@ -28,6 +26,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#RELATIONSHIPS
+user_has_permissions.drop(engine, checkfirst=True)
+user_has_roles.drop(engine, checkfirst=True)
+role_has_permissions.drop(engine, checkfirst=True)
 # CREATE TABLES
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
