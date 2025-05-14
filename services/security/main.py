@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from sqlalchemy.orm import Session
 from starlette.middleware.cors import CORSMiddleware
 from services.security.config.database import Base, engine
 from fastapi_pagination import add_pagination
@@ -11,7 +10,9 @@ from services.security.controllers.role import router as role_router
 from services.security.models.permission import Permission
 from services.security.models.user import User
 from services.security.models.role import Role
-from services.security.models.associations import user_has_roles, user_has_permissions, role_has_permissions
+from services.security.models.user_has_permissions import UserHasPermissions
+from services.security.models.role_has_permissions import RoleHasPermissions
+from services.security.models.user_has_roles import UserHasRoles
 #SEEDERS
 from services.security.seeders.seed import seed
 
@@ -29,10 +30,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-#RELATIONSHIPS
-user_has_permissions.drop(engine, checkfirst=True)
-user_has_roles.drop(engine, checkfirst=True)
-role_has_permissions.drop(engine, checkfirst=True)
 # CREATE TABLES
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
