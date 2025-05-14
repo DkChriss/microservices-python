@@ -50,6 +50,11 @@
       "model": "roles"
     },
     {
+      "name": "asignar roles",
+      "action": "assign roles",
+      "model": "roles"
+    },
+    {
       "name": "visualizar permisos",
       "action": "view permissions",
       "model": "permissions"
@@ -72,6 +77,11 @@
     {
       "name": "eliminar permisos",
       "action": "delete permissions",
+      "model": "permissions"
+    },
+    {
+      "name": "asignar permisos",
+      "action": "assign permissions",
       "model": "permissions"
     }
 ]

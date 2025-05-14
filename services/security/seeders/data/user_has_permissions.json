@@ -58,5 +58,13 @@
   {
     "user_id": 1,
     "permission_id": 15
+  },
+  {
+    "user_id": 1,
+    "permission_id": 16
+  },
+  {
+    "user_id": 1,
+    "permission_id": 17
   }
 ]
