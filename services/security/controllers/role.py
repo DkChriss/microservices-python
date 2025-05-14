@@ -9,8 +9,7 @@ from services.security.models.user import User
 from services.security.utils.dependency import  get_db
 from services.security.utils.mapper import map_to_schema
 from services.security.models.role import Role
-from services.security.schemas.roles import RoleStore, RoleUpdate, RoleUsers, RolePermissions
-
+from services.security.schemas.roles import RoleStore, RoleUpdate, RoleUsers, RolePermissions, RoleResponse
 router = APIRouter()
 
 @router.get(
@@ -32,7 +31,7 @@ def list(
 
         return {
             "message": "Se ha obtenido la lista de roles correctamente",
-            "data": response.items,
+            "data": [RoleResponse.from_orm(role) for role in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
