@@ -1,6 +1,5 @@
+from jwt.exceptions import InvalidTokenError
 from dotenv import load_dotenv
-from jwt import PyJWTError
-
 import os
 import jwt
 
@@ -11,7 +10,7 @@ from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
 
 from services.security.models.user import User
-from services.security.schemas.auth import Token
+from services.security.schemas.auth import Token, TokenData
 from services.security.utils.dependency import get_db
 
 router = APIRouter()
@@ -30,13 +29,13 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     user = db.query(User).filter(User.phone == form_data.username).first()
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail="El numero de celular o contraseña estan incorrectas"
         )
     try:
         if not verify_password(form_data.password, user.password):
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="El numero de celular o contraseña estan incorrectas"
             )
         roles = [role.name for role in user.roles]
@@ -60,3 +59,25 @@ def create_access_token(username: int, expires_delta: timedelta,  user_id: int, 
     expires = datetime.utcnow() + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(token: str = Depends(oauth2_bearer), db: Session = Depends(get_db)):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        scopes = payload.get("scopes", [])
+        roles = payload.get("roles", [])
+        id = payload.get("id")
+        if scopes == [] or roles == [] or id is None:
+            raise credentials_exception
+        return {
+            "id": id,
+            "roles": roles,
+            "scopes": scopes,
+        }
+    except InvalidTokenError:
+        raise credentials_exception
+
