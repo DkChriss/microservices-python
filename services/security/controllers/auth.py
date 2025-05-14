@@ -22,7 +22,23 @@ ALGORITHM = os.getenv("ALGORITHM")
 ACCESS_TOKEN_EXPIRE = timedelta(minutes=60)
 
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_bearer = OAuth2PasswordBearer(tokenUrl="auth/token")
+oauth2_bearer = OAuth2PasswordBearer(
+    tokenUrl="auth/token",
+    scopes={
+        "view users": "view users",
+        "create users": "create users",
+        "show user": "show users",
+        "update users": "update users",
+        "delete users": "delete users",
+        "view roles": "view roles",
+        "create roles": "create roles",
+        "show role": "show role",
+        "update roles": "update roles",
+        "delete roles": "delete roles",
+        "assign roles": "assign roles",
+        "assign permissions": "assign permissions"
+    }
+)
 
 @router.post("/auth/login", status_code=status.HTTP_200_OK, response_model=Token)
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)) -> Token:
