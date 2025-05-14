@@ -10,6 +10,10 @@ class RoleUpdate(BaseModel):
     name: str | None
     description: str | None
 
-class RoleUser(BaseModel):
+class RoleUsers(BaseModel):
     role_id: int
     users_ids: list[int]
+
+class RolePermissions(BaseModel):
+    role_id: int
+    permissions_ids: list[int]

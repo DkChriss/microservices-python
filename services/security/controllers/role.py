@@ -1,13 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
-from fastapi_pagination import paginate, Params
+from fastapi_pagination import Params
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import Session, lazyload
+from fastapi_pagination.ext.sqlalchemy import  paginate
 
+from services.security.models.permission import Permission
 from services.security.models.user import User
 from services.security.utils.dependency import  get_db
 from services.security.utils.mapper import map_to_schema
 from services.security.models.role import Role
-from services.security.schemas.roles import RoleStore, RoleUpdate, RoleUser
+from services.security.schemas.roles import RoleStore, RoleUpdate, RoleUsers, RolePermissions
 
 router = APIRouter()
 
@@ -23,21 +25,22 @@ def list(
 ):
     try:
         params = Params(page=page, size=size)
-        query = db.query(Role)
-        paginated_roles = paginate(query.all(), params)
+        response = paginate(db.query(Role), params)
+
+        next_page = page + 1 if page * size < response.total else None
+        prev_page = page - 1 if page > 1 else None
 
         return {
-            "message": "Lista de roles obtenida correctamente",
-            "data": [{
-                "id": role.id,
-                "name": role.name,
-                "description": role.description
-            } for role in paginated_roles.items],
-            "pagination": {
-                "total": paginated_roles.total,
-                "page": paginated_roles.page,
-                "size": paginated_roles.size,
-                "pages": paginated_roles.pages
+            "message": "Se ha obtenido la lista de roles correctamente",
+            "data": response.items,
+            "total": response.total,
+            "page": response.page,
+            "size": response.size,
+            "links": {
+                "next": f"/api/v1/roles?page={next_page}&size={size}" if next_page else None,
+                "previous": f"/api/v1/roles?page={prev_page}&size={size}" if prev_page else None,
+                "first": f"/api/v1/roles?page=1&size={size}",
+                "last": f"/api/v1/roles?page={response.pages}&size={size}"
             }
         }
     except Exception as e:
@@ -46,7 +49,7 @@ def list(
             detail=f"Error al obtener la lista de roles: {str(e)}"
         )
 @router.post(
-    "roles",
+    "/roles",
     status_code=status.HTTP_201_CREATED,
     tags=["roles"]
 )
@@ -153,10 +156,15 @@ def destroy(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
     tags=["roles"]
 )
-def assign_users(role_user: RoleUser, db: Session = Depends(get_db)):
+def assign_users(role_users: RoleUsers, db: Session = Depends(get_db)):
     try:
-        current_role = db.query(Role).filter(Role.id == role_user.role_id).first()
-        for id in role_user.users_ids:
+        current_role = db.query(Role).filter(Role.id == role_users.role_id).first()
+        if current_role is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el rol que desea asignar a los usuarios"
+            )
+        for id in role_users.users_ids:
             current_user = db.query(User).filter(User.id == id).first()
             if current_user is not None:
                 current_user.roles.append(current_role)
@@ -168,5 +176,32 @@ def assign_users(role_user: RoleUser, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail=f"Error al asignar el rol a los usuarios: {e}"
+            detail="Error al asignar el rol a los usuarios"
+        )
+@router.post(
+    '/roles/assign-permissions',
+    status_code=status.HTTP_201_CREATED,
+    tags=["roles"]
+)
+def assign_permissions(role_permissions: RolePermissions, db: Session = Depends(get_db)):
+    try:
+        current_role = db.query(Role).filter(Role.id == role_permissions.role_id).first()
+        if current_role is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el rol que desea asignar los permisos"
+            )
+        for id in role_permissions.permissions_ids:
+            current_permission = db.query(Permission).filter(Permission.id == id).first()
+            if current_permission is not None:
+                current_role.permissions.append(current_permission)
+                db.commit()
+        return {
+            "message": "Se ha asignado los permisos al rol correctamente",
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Error al asignar los permisos al rol"
         )
