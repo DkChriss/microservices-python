@@ -1,8 +1,5 @@
-{
-  "model": "models.users",
-  "data": [
+[
     {
-      "id": 1,
       "code": "1",
       "name": "admin",
       "last_name": "admin",
@@ -12,7 +9,6 @@
       "status": true,
       "password": "admin-password",
       "phone": 123456789,
-      "token-firebase": "token-firebase"
+      "token_firebase": "token-firebase"
     }
-  ]
-}
+]
