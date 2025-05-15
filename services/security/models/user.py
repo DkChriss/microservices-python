@@ -1,9 +1,9 @@
-
 from sqlalchemy import  Integer, Text, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 class User(Base):
     __tablename__ = "users"
 
