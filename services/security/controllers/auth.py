@@ -1,18 +1,15 @@
 from jwt.exceptions import InvalidTokenError
 from dotenv import load_dotenv
-import os
-import jwt
-
 from fastapi import Depends, HTTPException, status, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
-
 from services.security.models.user import User
 from services.security.schemas.auth import Token, TokenData
 from services.security.utils.dependency import get_db
-
+import os
+import jwt
 router = APIRouter()
 
 load_dotenv()

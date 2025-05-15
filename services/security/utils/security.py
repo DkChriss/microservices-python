@@ -1,10 +1,15 @@
-import os
-
-import jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from passlib.exc import InvalidTokenError
-from starlette import status
+from sqlalchemy.orm import Session
+from typing import List
+#MODELS
+from services.security.models.role import Role
+from services.security.models.user import User
+from services.security.utils.dependency import get_db
+#ALL
+import os
+import jwt
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM")
@@ -12,22 +17,26 @@ ALGORITHM = os.getenv("ALGORITHM")
 oauth2_bearer = OAuth2PasswordBearer(
     tokenUrl="auth/token",
     scopes={
-        "view:users": "view users",
-        "create:users": "create users",
-        "show:user": "show user",
-        "update:users": "update users",
-        "delete:users": "delete users",
-        "view:roles": "view roles",
-        "create:roles": "create roles",
-        "show:role": "show role",
-        "update:roles": "update roles",
-        "delete:roles": "delete roles",
-        "assign:roles": "assign roles",
-        "assign:permissions": "assign permissions"
+        "view users": "view users",
+        "create users": "create users",
+        "show user": "show user",
+        "update users": "update users",
+        "delete users": "delete users",
+        "view roles": "view roles",
+        "create roles": "create roles",
+        "show role": "show role",
+        "update roles": "update roles",
+        "delete roles": "delete roles",
+        "assign roles": "assign roles",
+        "assign permissions": "assign_permissions"
     }
 )
 
-async def get_current_user( security_scopes: SecurityScopes, token: str = Depends(oauth2_bearer)):
+async def get_current_user(
+        security_scopes: SecurityScopes,
+        token: str = Depends(oauth2_bearer),
+        db: Session = Depends(get_db)
+):
     credentials_exception = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="No esta autorizado para realizar esta accion",
@@ -37,19 +46,25 @@ async def get_current_user( security_scopes: SecurityScopes, token: str = Depend
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         scopes = payload.get("scopes", [])
         roles = payload.get("roles", [])
-        id = payload.get("id")
-        if scopes == [] or roles == [] or id is None:
+        user = db.query(User).filter(User.id == payload.get("id")).first()
+        if user is None:
             raise credentials_exception
-        return {
-            "id": id,
-            "roles": roles,
-            "scopes": scopes,
-        }
     except InvalidTokenError:
         raise credentials_exception
 
-    for scope in security_scopes.scopes:
-        if scope not in token_scopes:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="No tiene los permisos necesarios para realizar esta accion")
+    check_permissions(scopes, security_scopes, "Su usuario no tiene los permisos necesarios para realizar esta accion")
+    check_roles_permission(roles, security_scopes, "Su rol no tiene los permisos necesarios para realizar esta accion", db)
 
-    return {"sub": username, "scopes": token_scopes}
+def check_permissions(permissions: List[str],  security_scopes: SecurityScopes, message: str):
+    if not permissions == []:
+        for scope in security_scopes.scopes:
+            if scope not in permissions:
+                raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=message)
+
+def check_roles_permission(roles: List[str], security_scopes: SecurityScopes, message: str, db: Session):
+    if not roles == []:
+        for role in roles:
+            current_role = db.query(Role).filter(Role.name == role).first()
+            if current_role is not None:
+                actions = [permission.action for permission in current_role.permissions]
+                check_permissions(actions, security_scopes, message)

@@ -1,87 +1,87 @@
 [
     {
       "name": "visualizar usuarios",
-      "action": "view:users",
+      "action": "view users",
       "model": "users"
     },
     {
       "name": "crear usuarios",
-      "action": "create:users",
+      "action": "create users",
       "model": "users"
     },
     {
       "name": "visualizar usuario",
-      "action": "show:user",
+      "action": "show user",
       "model": "users"
     },
     {
       "name": "actualizar usuarios",
-      "action": "update:users",
+      "action": "update users",
       "model": "users"
     },
     {
       "name": "eliminar usuarios",
-      "action": "delete:users",
+      "action": "delete users",
       "model": "users"
     },
     {
       "name": "visualizar roles",
-      "action": "view:roles",
+      "action": "view roles",
       "model": "roles"
     },
     {
       "name": "crear roles",
-      "action": "store:roles",
+      "action": "store roles",
       "model": "roles"
     },
     {
       "name": "visualizar rol",
-      "action": "show:role",
+      "action": "show role",
       "model": "roles"
     },
     {
       "name": "actualizar roles",
-      "action": "update:roles",
+      "action": "update roles",
       "model": "roles"
     },
     {
       "name": "eliminar roles",
-      "action": "delete:roles",
+      "action": "delete roles",
       "model": "roles"
     },
     {
       "name": "asignar roles",
-      "action": "assign:roles",
+      "action": "assign roles",
       "model": "roles"
     },
     {
       "name": "visualizar permisos",
-      "action": "view:permissions",
+      "action": "view permissions",
       "model": "permissions"
     },
     {
       "name": "crear permisos",
-      "action": "store:permissions",
+      "action": "store permissions",
       "model": "permissions"
     },
     {
       "name": "visualizar permiso",
-      "action": "show:permission",
+      "action": "show permission",
       "model": "permissions"
     },
     {
       "name": "actualizar permisos",
-      "action": "update:permissions",
+      "action": "update permissions",
       "model": "permissions"
     },
     {
       "name": "eliminar permisos",
-      "action": "delete:permissions",
+      "action": "delete permissions",
       "model": "permissions"
     },
     {
       "name": "asignar permisos",
-      "action": "assign:permissions",
+      "action": "assign permissions",
       "model": "permissions"
     }
 ]
