@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, PrimaryKeyConstraint, Text, Boolean, DateTime
+from sqlalchemy import Integer, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 import datetime

@@ -10,5 +10,17 @@
       "password": "admin-password",
       "phone": 123456789,
       "token_firebase": "token-firebase"
+    },
+    {
+      "code": "2",
+      "name": "client",
+      "last_name": "client",
+      "second_surname": "client",
+      "email": "client@client.com",
+      "avatar": "client-avatar",
+      "status": true,
+      "password": "client-password",
+      "phone": 1234567891,
+      "token_firebase": "token-firebase"
     }
 ]
