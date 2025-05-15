@@ -42,7 +42,6 @@ class UserResponse(BaseModel):
     phone: int
 
     class Config:
-        orm_mode = True
         from_attributes = True
 
 class UserRoles(BaseModel):

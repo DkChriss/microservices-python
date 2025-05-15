@@ -31,7 +31,7 @@
     },
     {
       "name": "crear roles",
-      "action": "store roles",
+      "action": "create roles",
       "model": "roles"
     },
     {
@@ -57,26 +57,6 @@
     {
       "name": "visualizar permisos",
       "action": "view permissions",
-      "model": "permissions"
-    },
-    {
-      "name": "crear permisos",
-      "action": "store permissions",
-      "model": "permissions"
-    },
-    {
-      "name": "visualizar permiso",
-      "action": "show permission",
-      "model": "permissions"
-    },
-    {
-      "name": "actualizar permisos",
-      "action": "update permissions",
-      "model": "permissions"
-    },
-    {
-      "name": "eliminar permisos",
-      "action": "delete permissions",
       "model": "permissions"
     },
     {

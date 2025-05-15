@@ -51,20 +51,21 @@ async def get_current_user(
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
-
+    if scopes == [] and roles == []:
+        raise credentials_exception
+    add_permissions(scopes, roles, db)
     check_permissions(scopes, security_scopes, "Su usuario no tiene los permisos necesarios para realizar esta accion")
-    check_roles_permission(roles, security_scopes, "Su rol no tiene los permisos necesarios para realizar esta accion", db)
+
+def add_permissions(scopes: List[str], roles: List[str], db: Session):
+    if not roles == []:
+        for role in roles:
+            current_role = db.query(Role).filter(Role.name == role).first()
+            if current_role is not None:
+                actions: list[str] = [permission.action for permission in current_role.permissions]
+                scopes = list(set(actions) | set(scopes))
 
 def check_permissions(permissions: List[str],  security_scopes: SecurityScopes, message: str):
     if not permissions == []:
         for scope in security_scopes.scopes:
             if scope not in permissions:
                 raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=message)
-
-def check_roles_permission(roles: List[str], security_scopes: SecurityScopes, message: str, db: Session):
-    if not roles == []:
-        for role in roles:
-            current_role = db.query(Role).filter(Role.name == role).first()
-            if current_role is not None:
-                actions = [permission.action for permission in current_role.permissions]
-                check_permissions(actions, security_scopes, message)
