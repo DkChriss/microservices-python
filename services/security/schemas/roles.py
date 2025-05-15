@@ -1,14 +1,14 @@
+from typing import Optional
 from pydantic import BaseModel
-
 
 class RoleStore(BaseModel):
     name: str
     description: str
 
 class RoleUpdate(BaseModel):
-    id: int | None
-    name: str | None
-    description: str | None
+    id: Optional[int] = None
+    name: str = None
+    description: str = None
 
 class RoleResponse(BaseModel):
     id: int
@@ -16,6 +16,7 @@ class RoleResponse(BaseModel):
     description: str
 
     class Config:
+        orm_mode = True
         from_attributes = True
 
 class RoleUsers(BaseModel):

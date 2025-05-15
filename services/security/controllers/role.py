@@ -1,15 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Security
 from fastapi_pagination import Params
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import Session, lazyload
+from sqlalchemy.orm import Session
 from fastapi_pagination.ext.sqlalchemy import  paginate
-
 from services.security.models.permission import Permission
 from services.security.models.user import User
 from services.security.utils.dependency import  get_db
-from services.security.utils.mapper import map_to_schema
 from services.security.models.role import Role
 from services.security.schemas.roles import RoleStore, RoleUpdate, RoleUsers, RolePermissions, RoleResponse
+from services.security.utils.security import get_current_user
+
 router = APIRouter()
 
 @router.get(
@@ -20,7 +19,8 @@ router = APIRouter()
 def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Roles por pagina"),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["view roles"])
 ):
     try:
         params = Params(page=page, size=size)
@@ -31,7 +31,7 @@ def list(
 
         return {
             "message": "Se ha obtenido la lista de roles correctamente",
-            "data": [RoleResponse.from_orm(role) for role in response.items],
+            "data": [RoleResponse.model_validate(role) for role in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -52,16 +52,20 @@ def list(
     status_code=status.HTTP_201_CREATED,
     tags=["roles"]
 )
-def store(role_store: RoleStore, db: Session = Depends(get_db)):
+def store(
+        role_store: RoleStore,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["create roles"])
+):
     try:
-        new_role = Role(**role_store.dict())
+        new_role = Role(**role_store.model_dump())
         db.add(new_role)
         db.commit()
         db.refresh(new_role)
 
         return {
             "message": "Se ha registrado el rol correctamente",
-            "data": map_to_schema(new_role, RoleStore)
+            "data": RoleResponse.model_validate(new_role)
         }
     except Exception as e:
         db.rollback()
@@ -75,7 +79,11 @@ def store(role_store: RoleStore, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["roles"]
 )
-def show(id: int, db: Session = Depends(get_db)):
+def show(
+        id: int,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["show role"])
+):
     try:
         role = db.query(Role).filter(Role.id == id).first()
         if role is None:
@@ -86,7 +94,7 @@ def show(id: int, db: Session = Depends(get_db)):
 
         return {
             "message": "Se ha obtenido el rol correctamente",
-            "data": map_to_schema(role, RoleUpdate)
+            "data": RoleResponse.model_validate(role)
         }
     except Exception as e:
         db.rollback()
@@ -100,7 +108,12 @@ def show(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["roles"]
 )
-def update(id: int ,role_update: RoleUpdate, db: Session = Depends(get_db)):
+def update(
+        id: int ,
+        role_update: RoleUpdate,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["update roles"])
+):
     try:
         current_role = db.query(Role).filter(Role.id == id).first()
         role_update.id = id
@@ -109,14 +122,13 @@ def update(id: int ,role_update: RoleUpdate, db: Session = Depends(get_db)):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el rol que desea actualizar"
             )
-        for key, value in role_update.dict(exclude_unset=True).items():
+        for key, value in role_update.model_dump(exclude_unset=True).items():
             setattr(current_role, key, value)
         db.commit()
         db.refresh(current_role)
-        response = map_to_schema(current_role, RoleUpdate)
         return {
             "message": "Se ha actualizado el rol correctamente",
-            "data": response
+            "data": RoleResponse.model_validate(current_role)
         }
     except Exception as e:
         db.rollback()
@@ -130,7 +142,11 @@ def update(id: int ,role_update: RoleUpdate, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["roles"]
 )
-def destroy(id: int, db: Session = Depends(get_db)):
+def destroy(
+        id: int,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["delete roles"])
+):
     try:
         role = db.query(Role).filter(Role.id == id).first()
         if role is None:
@@ -155,7 +171,11 @@ def destroy(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
     tags=["roles"]
 )
-def assign_users(role_users: RoleUsers, db: Session = Depends(get_db)):
+def assign_users(
+        role_users: RoleUsers,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["assign roles"])
+):
     try:
         current_role = db.query(Role).filter(Role.id == role_users.role_id).first()
         if current_role is None:
@@ -165,8 +185,8 @@ def assign_users(role_users: RoleUsers, db: Session = Depends(get_db)):
             )
         for id in role_users.users_ids:
             current_user = db.query(User).filter(User.id == id).first()
-            if current_user is not None:
-                current_user.roles.append(current_role)
+            if current_user is not None and current_user not in current_role.users:
+                current_role.users.append(current_user)
                 db.commit()
         return {
             "message": "Se ha asignado el rol a los usuarios correctamente",
@@ -175,14 +195,18 @@ def assign_users(role_users: RoleUsers, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error al asignar el rol a los usuarios"
+            detail=f"Error al asignar el rol a los usuarios {e}"
         )
 @router.post(
     '/roles/assign-permissions',
     status_code=status.HTTP_201_CREATED,
     tags=["roles"]
 )
-def assign_permissions(role_permissions: RolePermissions, db: Session = Depends(get_db)):
+def assign_permissions(
+        role_permissions: RolePermissions,
+        db: Session = Depends(get_db),
+        role_permission: Role = Security(get_current_user, scopes=["assign permissions"])
+):
     try:
         current_role = db.query(Role).filter(Role.id == role_permissions.role_id).first()
         if current_role is None:
@@ -192,7 +216,7 @@ def assign_permissions(role_permissions: RolePermissions, db: Session = Depends(
             )
         for id in role_permissions.permissions_ids:
             current_permission = db.query(Permission).filter(Permission.id == id).first()
-            if current_permission is not None:
+            if current_permission is not None and current_permission not in current_role.permissions:
                 current_role.permissions.append(current_permission)
                 db.commit()
         return {
@@ -202,5 +226,5 @@ def assign_permissions(role_permissions: RolePermissions, db: Session = Depends(
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Error al asignar los permisos al rol"
+            detail=f"Error al asignar los permisos al rol {e}"
         )

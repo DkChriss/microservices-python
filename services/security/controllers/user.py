@@ -1,6 +1,4 @@
-import json
-
-from fastapi import APIRouter, Depends, HTTPException, Query, Form, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
@@ -10,8 +8,7 @@ from services.security.models.role import Role
 from services.security.schemas.user import UserStore, UserUpdate, UserRoles, UserPermissions, UserResponse
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
-from services.security.utils.mapper import map_to_schema
-
+from services.security.utils.security import get_current_user
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -23,7 +20,8 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Usuarios por pagina"),
-        db: Session = Depends(get_db)
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["view users"])
 ):
     try:
         params = Params(page=page, size=size)
@@ -34,7 +32,7 @@ def list(
 
         return {
             "message": "Se ha obtenido la lista de usuarios correctamente",
-            "data": [UserResponse.from_attributes(user) for user in response.items],
+            "data": [UserResponse.model_validate(user) for user in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -53,20 +51,24 @@ def list(
 @router.post(
     "/users",
     status_code=status.HTTP_201_CREATED,
-    tags=["users"],
+    tags=["users"]
 )
-def store(user: UserStore, db: Session = Depends(get_db)):
+def store(
+        user: UserStore,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["create users"])
+):
     try:
         hashed_password = bcrypt_context.hash(user.password)
         user.password = hashed_password
-        new_user = User(**user.dict())
+        new_user = User(**user.model_dump())
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
 
         return {
             "message": "Se ha registrado el usuario correctamente",
-            "data": new_user
+            "data": UserResponse.model_validate(new_user)
         }
     except Exception as e:
         db.rollback()
@@ -79,7 +81,11 @@ def store(user: UserStore, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["users"]
 )
-def show(id: int, db: Session = Depends(get_db)):
+def show(
+        id: int,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["show user"])
+):
     try:
         user = db.query(User).filter(User.id == id).first()
         if user is None:
@@ -90,7 +96,7 @@ def show(id: int, db: Session = Depends(get_db)):
 
         return {
             "message": "Se ha obtenido el usuario correctamente",
-            "data": user
+            "data": UserResponse.model_validate(user)
         }
     except Exception as e:
         db.rollback()
@@ -103,7 +109,12 @@ def show(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["users"]
 )
-def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
+def update(
+        id: int ,
+        user_update: UserUpdate,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["update users"])
+):
     try:
         current_user = db.query(User).filter(User.id == id).first()
         if current_user is None:
@@ -112,14 +123,13 @@ def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
                 detail="No existe el usuario que desea actualizar"
             )
         user_update.id = id
-        for key, value in user_update.dict(exclude_unset=True).items():
+        for key, value in user_update.model_dump(exclude_unset=True).items():
             setattr(current_user, key, value)
         db.commit()
         db.refresh(current_user)
-        response = map_to_schema(current_user, UserStore)
         return {
             "message": "Se ha actualizado el usuario correctamente",
-            "data": response
+            "data": UserResponse.model_validate(current_user)
         }
     except Exception as e:
         db.rollback()
@@ -132,7 +142,11 @@ def update(id: int ,user_update: UserUpdate, db: Session = Depends(get_db)):
     status_code=status.HTTP_200_OK,
     tags=["users"]
 )
-def destroy(id: int, db: Session = Depends(get_db)):
+def destroy(
+        id: int,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["delete users"])
+):
     try:
         user = db.query(User).filter(User.id == id).first()
         if user is None:
@@ -157,7 +171,11 @@ def destroy(id: int, db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
     tags=["users"]
 )
-def assign_roles(user_roles:UserRoles, db: Session = Depends(get_db)):
+def assign_roles(
+        user_roles:UserRoles,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["assign roles"])
+):
     try:
         current_user = db.query(User).filter(User.id == user_roles.user_id).first()
         if current_user is None:
@@ -167,7 +185,7 @@ def assign_roles(user_roles:UserRoles, db: Session = Depends(get_db)):
             )
         for id in user_roles.roles_ids:
             current_role = db.query(Role).filter(Role.id == id).first()
-            if current_role is not None:
+            if current_role is not None and current_role not in current_user.roles:
                 current_user.roles.append(current_role)
                 db.commit()
         return {
@@ -185,7 +203,11 @@ def assign_roles(user_roles:UserRoles, db: Session = Depends(get_db)):
     status_code=status.HTTP_201_CREATED,
     tags=["users"]
 )
-def assign_permissions(user_permissions: UserPermissions, db: Session = Depends(get_db)):
+def assign_permissions(
+        user_permissions: UserPermissions,
+        db: Session = Depends(get_db),
+        user_permission: User = Security(get_current_user, scopes=["assign permissions"])
+):
     try:
         current_user = db.query(User).filter(User.id == user_permissions.user_id).first()
         if current_user is None:
@@ -195,7 +217,7 @@ def assign_permissions(user_permissions: UserPermissions, db: Session = Depends(
             )
         for id in user_permissions.permissions_ids:
             current_permission = db.query(Permission).filter(Permission.id == id).first()
-            if current_permission is not None:
+            if current_permission is not None and current_permission not in current_user.permissions:
                 current_user.permissions.append(current_permission)
                 db.commit()
 

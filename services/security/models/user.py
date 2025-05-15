@@ -1,12 +1,9 @@
 
-from sqlalchemy import Column, Integer, PrimaryKeyConstraint, Text, Boolean, DateTime
+from sqlalchemy import  Integer, Text, Boolean, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
-import datetime
-
-from services.security.models.role import Role
-
-
+from datetime import datetime
+from zoneinfo import ZoneInfo
 class User(Base):
     __tablename__ = "users"
 
@@ -21,8 +18,8 @@ class User(Base):
     password: Mapped[str] = mapped_column(Text)
     phone: Mapped[int] = mapped_column(Integer, unique=True)
     token_firebase: Mapped[str] = mapped_column(Text)
-    created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
-    updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
+    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
 
     roles = relationship("Role", secondary='user_has_roles', back_populates="users", cascade="all")
     permissions = relationship("Permission", secondary='user_has_permissions', back_populates="users", cascade="all")

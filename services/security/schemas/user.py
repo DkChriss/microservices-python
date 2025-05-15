@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List, Union
+from typing import Optional, List
 
 class UserStore(BaseModel):
     code: str
@@ -16,7 +16,7 @@ class UserStore(BaseModel):
         from_attributes = True
 
 class UserUpdate(BaseModel):
-    id: int | None
+    id: Optional[int] = None
     code: str | None
     name: str | None
     last_name:  str | None
@@ -24,7 +24,7 @@ class UserUpdate(BaseModel):
     email: EmailStr | None
     avatar: str | None
     status: bool | None
-    password: str | None
+    password: Optional[str] = None
     phone: int | None
     token_firebase: str | None
     class Config:
@@ -42,6 +42,7 @@ class UserResponse(BaseModel):
     phone: int
 
     class Config:
+        orm_mode = True
         from_attributes = True
 
 class UserRoles(BaseModel):
