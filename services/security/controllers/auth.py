@@ -40,6 +40,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         return {
             'token': token,
             'token_type': 'bearer',
+            "user_id": user.id
         }
     except Exception as e:
         raise HTTPException(

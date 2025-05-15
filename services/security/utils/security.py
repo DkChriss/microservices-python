@@ -51,6 +51,7 @@ async def get_current_user(
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
+
     if scopes == [] and roles == []:
         raise credentials_exception
     add_permissions(scopes, roles, db)
