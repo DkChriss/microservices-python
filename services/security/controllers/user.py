@@ -54,14 +54,14 @@ def list(
     tags=["users"]
 )
 def store(
-        user: UserStore,
+        user_store: UserStore,
         db: Session = Depends(get_db),
         user_permission: User = Security(get_current_user, scopes=["create users"])
 ):
     try:
-        hashed_password = bcrypt_context.hash(user.password)
-        user.password = hashed_password
-        new_user = User(**user.model_dump())
+        hashed_password = bcrypt_context.hash(user_store.password)
+        user_store.password = hashed_password
+        new_user = User(**user_store.model_dump())
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -123,6 +123,9 @@ def update(
                 detail="No existe el usuario que desea actualizar"
             )
         user_update.id = id
+        if user_update.password:
+            hashed_password = bcrypt_context.hash(user_update.password)
+            user_update.password = hashed_password
         for key, value in user_update.model_dump(exclude_unset=True).items():
             setattr(current_user, key, value)
         db.commit()
