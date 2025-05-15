@@ -5,5 +5,5 @@ class TokenData(BaseModel):
     scopes: list[str] = []
 
 class Token(BaseModel):
-    access_token: str
+    token: str
     token_type: str

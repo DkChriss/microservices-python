@@ -38,7 +38,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         permissions = [permission.action for permission in user.permissions]
         token = create_access_token(user.phone, ACCESS_TOKEN_EXPIRE, user.id, permissions, roles)
         return {
-            'access_token': token,
+            'token': token,
             'token_type': 'bearer',
         }
     except Exception as e:
