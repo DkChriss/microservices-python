@@ -7,6 +7,7 @@ from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
 from services.security.models.user import User
 from services.security.schemas.auth import Token, TokenData
+from services.security.schemas.user import UserResponse
 from services.security.utils.dependency import get_db
 import os
 import jwt
@@ -40,7 +41,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         return {
             'token': token,
             'token_type': 'bearer',
-            "user_id": user.id
+            'user': UserResponse.model_validate(user)
         }
     except Exception as e:
         raise HTTPException(
