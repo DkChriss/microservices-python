@@ -3,6 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from services.security.models.status_enum import StatusEnum
+from sqlalchemy import Enum as SQLEnum
 
 class User(Base):
     __tablename__ = "users"
@@ -14,7 +16,11 @@ class User(Base):
     second_surname: Mapped[str] = mapped_column(Text)
     email: Mapped[str] = mapped_column(Text, unique=True)
     avatar: Mapped[str] = mapped_column(Text)
-    status: Mapped[bool] = mapped_column(Boolean, default=False)
+    status: Mapped[StatusEnum] = mapped_column(
+        SQLEnum(StatusEnum, name="status"),
+        default=StatusEnum.online,
+        nullable=False
+    )
     password: Mapped[str] = mapped_column(Text)
     phone: Mapped[int] = mapped_column(Integer, unique=True)
     token_firebase: Mapped[str] = mapped_column(Text)

@@ -6,7 +6,7 @@
       "second_surname": "admin",
       "email": "admin@admin.com",
       "avatar": "admin-avatar",
-      "status": true,
+      "status": "online",
       "password": "admin-password",
       "phone": 123456789,
       "token_firebase": "token-firebase"
@@ -18,7 +18,7 @@
       "second_surname": "client",
       "email": "client@client.com",
       "avatar": "client-avatar",
-      "status": true,
+      "status": "busy",
       "password": "client-password",
       "phone": 1234567891,
       "token_firebase": "token-firebase"

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional, List
+from services.security.models.status_enum import StatusEnum
 
 class UserStore(BaseModel):
     code: str
@@ -8,7 +9,7 @@ class UserStore(BaseModel):
     second_surname: str
     email: EmailStr
     avatar: str
-    status: bool
+    status: StatusEnum
     password: str
     phone: int
     token_firebase: str = None
@@ -23,7 +24,7 @@ class UserUpdate(BaseModel):
     second_surname: str | None
     email: EmailStr | None
     avatar: str | None
-    status: bool | None
+    status: StatusEnum | None
     password: Optional[str] = None
     phone: int | None
     token_firebase: str | None
@@ -38,7 +39,7 @@ class UserResponse(BaseModel):
     second_surname: str
     email: EmailStr
     avatar: str
-    status: bool
+    status: StatusEnum
     phone: int
 
     class Config:
