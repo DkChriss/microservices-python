@@ -1,14 +1,19 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status, Security
+from fastapi import APIRouter, Depends, HTTPException, Query, status, Security, Form, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
+from pydantic import EmailStr
 from sqlalchemy.orm import Session
 from services.security.models.permission import Permission
 from services.security.models.role import Role
-from services.security.schemas.user import UserStore, UserUpdate, UserRoles, UserPermissions, UserResponse
+from services.security.models.status_enum import StatusEnum
+from services.security.schemas.user import UserRoles, UserPermissions, UserResponse
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
 from services.security.utils.security import get_current_user
+from services.security.utils.files import save_avatar_file
+import os
+import shutil
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -54,14 +59,40 @@ def list(
     tags=["users"]
 )
 def store(
-        user_store: UserStore,
+        code: str = Form(...),
+        name: str = Form(...),
+        last_name: str = Form(...),
+        second_surname: str = Form(...),
+        email: EmailStr = Form(...),
+        password: str = Form(...),
+        phone: int = Form(...),
+        token_firebase: str = Form(None),
+        user_status: StatusEnum = Form(...),
+        avatar: UploadFile = File(...),
         db: Session = Depends(get_db),
         user_permission: User = Security(get_current_user, scopes=["create users"])
 ):
+    saved_avatar_path = None
+
     try:
-        hashed_password = bcrypt_context.hash(user_store.password)
-        user_store.password = hashed_password
-        new_user = User(**user_store.model_dump())
+        relative_avatar_path = save_avatar_file(avatar, name, last_name, code)
+        saved_avatar_path = os.path.join("services", "security", relative_avatar_path)
+
+        hashed_password = bcrypt_context.hash(password)
+
+        new_user = User(
+            code=code,
+            name=name,
+            last_name=last_name,
+            second_surname=second_surname,
+            email=email,
+            avatar=relative_avatar_path,
+            status=user_status,
+            password=hashed_password,
+            phone=phone,
+            token_firebase=token_firebase or ""
+        )
+
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
@@ -70,8 +101,11 @@ def store(
             "message": "Se ha registrado el usuario correctamente",
             "data": UserResponse.model_validate(new_user)
         }
+
     except Exception as e:
         db.rollback()
+        if saved_avatar_path and os.path.exists(saved_avatar_path):
+            os.remove(saved_avatar_path)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al registrar el usuario: {e}"
@@ -104,17 +138,30 @@ def show(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al obtener el usuario: {e}"
         )
+
+
 @router.put(
     "/users/{id}",
     status_code=status.HTTP_200_OK,
     tags=["users"]
 )
 def update(
-        id: int ,
-        user_update: UserUpdate,
+        id: int,
+        code: str = Form(...),
+        name: str = Form(...),
+        last_name: str = Form(...),
+        second_surname: str = Form(...),
+        email: EmailStr = Form(...),
+        password: str = Form(None),
+        phone: int = Form(...),
+        token_firebase: str = Form(None),
+        user_status: StatusEnum = Form(...),
+        avatar: UploadFile = File(None),
         db: Session = Depends(get_db),
         user_permission: User = Security(get_current_user, scopes=["update users"])
 ):
+    new_avatar_path = None
+
     try:
         current_user = db.query(User).filter(User.id == id).first()
         if current_user is None:
@@ -122,20 +169,42 @@ def update(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el usuario que desea actualizar"
             )
-        user_update.id = id
-        if user_update.password:
-            hashed_password = bcrypt_context.hash(user_update.password)
-            user_update.password = hashed_password
-        for key, value in user_update.model_dump(exclude_unset=True).items():
-            setattr(current_user, key, value)
+
+        if avatar:
+            new_relative_avatar_path = save_avatar_file(avatar, name, last_name, code)
+            new_avatar_path = os.path.join("services", "security", new_relative_avatar_path)
+
+            old_avatar_path = os.path.join("services", "security", current_user.avatar)
+            if os.path.exists(old_avatar_path) and old_avatar_path != new_avatar_path:
+                os.remove(old_avatar_path)
+
+            current_user.avatar = new_relative_avatar_path
+
+        # Update other fields
+        current_user.code = code
+        current_user.name = name
+        current_user.last_name = last_name
+        current_user.second_surname = second_surname
+        current_user.email = email
+        current_user.status = user_status
+        current_user.phone = phone
+        current_user.token_firebase = token_firebase or current_user.token_firebase
+
+        if password:
+            current_user.password = bcrypt_context.hash(password)
+
         db.commit()
         db.refresh(current_user)
+
         return {
             "message": "Se ha actualizado el usuario correctamente",
             "data": UserResponse.model_validate(current_user)
         }
+
     except Exception as e:
         db.rollback()
+        if new_avatar_path and os.path.exists(new_avatar_path):
+            os.remove(new_avatar_path)
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al actualizar el usuario: {e}"
@@ -159,6 +228,9 @@ def destroy(
             )
         db.delete(user)
         db.commit()
+        avatar_path = os.path.join("services", "security", user.avatar)
+        if os.path.exists(avatar_path):
+            os.remove(avatar_path)
         return {
             "message": "Se ha eliminado el usuario correctamente"
         }
