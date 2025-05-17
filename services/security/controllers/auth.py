@@ -1,6 +1,7 @@
-from jwt.exceptions import InvalidTokenError
+import jwt.exceptions
 from dotenv import load_dotenv
 from fastapi import Depends, HTTPException, status, APIRouter
+from fastapi.responses import FileResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
@@ -41,7 +42,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
         return {
             'token': token,
             'token_type': 'bearer',
-            'user': UserResponse.model_validate(user)
+            'user': UserResponse.model_validate(user),
         }
     except Exception as e:
         raise HTTPException(

@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Security, Form, UploadFile, File
 from fastapi_pagination import Params
+from fastapi.responses import FileResponse
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
 from pydantic import EmailStr
@@ -303,4 +304,32 @@ def assign_permissions(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al asignar los permisos al usuario {e}"
+        )
+
+@router.get(
+    '/users/{id}/avatar',
+    status_code=status.HTTP_200_OK,
+    tags=["users"]
+)
+def get_avatar(id: int, db: Session = Depends(get_db)):
+    try:
+        user = db.query(User).filter(User.id == id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el usuario que desea obtener el avatar"
+            )
+        saved_avatar_path = os.path.join("services", "security", user.avatar)
+        if not os.path.exists(saved_avatar_path):
+            return HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el avatar del usuario"
+            )
+
+        return FileResponse(saved_avatar_path, media_type="image/png")
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Error al obtener el avatar: {e}"
         )

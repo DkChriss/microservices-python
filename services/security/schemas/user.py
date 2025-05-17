@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr
-from typing import Optional, List
+from typing import List
 from services.security.models.status_enum import StatusEnum
 
 class UserResponse(BaseModel):
