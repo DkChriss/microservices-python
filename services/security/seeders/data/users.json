@@ -1,0 +1,26 @@
+[
+    {
+      "code": "1",
+      "name": "admin",
+      "last_name": "admin",
+      "second_surname": "admin",
+      "email": "admin@admin.com",
+      "avatar": "admin-avatar",
+      "status": "online",
+      "password": "admin-password",
+      "phone": 123456789,
+      "token_firebase": "token-firebase"
+    },
+    {
+      "code": "2",
+      "name": "client",
+      "last_name": "client",
+      "second_surname": "client",
+      "email": "client@client.com",
+      "avatar": "client-avatar",
+      "status": "busy",
+      "password": "client-password",
+      "phone": 1234567891,
+      "token_firebase": "token-firebase"
+    }
+]
