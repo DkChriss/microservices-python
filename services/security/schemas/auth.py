@@ -1,7 +1,5 @@
 from pydantic import BaseModel
-
 from services.security.schemas.user import UserResponse
-
 
 class TokenData(BaseModel):
     username: str | None = None

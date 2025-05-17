@@ -1,6 +1,6 @@
+from fastapi import UploadFile, HTTPException
 import os
 import shutil
-from fastapi import UploadFile, HTTPException
 
 def save_avatar_file(avatar: UploadFile, name: str, last_name: str, code: str) -> str:
     if not avatar.content_type.startswith("image/"):

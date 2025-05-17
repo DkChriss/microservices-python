@@ -13,7 +13,6 @@ from services.security.models.user import User
 from services.security.utils.security import get_current_user
 from services.security.utils.files import save_avatar_file
 import os
-import shutil
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

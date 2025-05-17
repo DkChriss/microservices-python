@@ -1,5 +1,3 @@
-import os
-
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 from services.security.config.database import Base, engine
@@ -17,6 +15,7 @@ from services.security.models.role_has_permissions import RoleHasPermissions
 from services.security.models.user_has_roles import UserHasRoles
 #SEEDERS
 from services.security.seeders.seed import seed
+import os
 
 debug = os.getenv("DEBUG", "False").lower() == "true"
 app = FastAPI()

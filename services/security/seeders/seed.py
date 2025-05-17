@@ -1,5 +1,3 @@
-import logging
-
 from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -11,6 +9,7 @@ from services.security.models.role_has_permissions import RoleHasPermissions
 from services.security.models.user_has_roles import UserHasRoles
 from services.security.models.user_has_permissions import UserHasPermissions
 import json
+import logging
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 

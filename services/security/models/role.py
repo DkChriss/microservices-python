@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 from datetime import datetime
 from zoneinfo import ZoneInfo
+
 class Role(Base):
     __tablename__ = 'roles'
 

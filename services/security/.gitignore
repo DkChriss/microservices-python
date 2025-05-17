@@ -15,3 +15,7 @@ static/avatars/*
 .env
 .env.production
 .env.development
+
+#VENV
+.venv
+.venv/*
