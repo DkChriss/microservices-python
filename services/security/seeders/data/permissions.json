@@ -213,5 +213,55 @@
       "name": "eliminar registro de dispositivo",
       "action": "delete devices-registration",
       "model": "devices-registration"
+    },
+    {
+      "name": "visualizar contactos de emergencia",
+      "action": "view emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "crear contacto de emergencia",
+      "action": "create emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "visualizar contacto de emergencia",
+      "action": "show emergency-contact",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "actualizar contacto de emergencia",
+      "action": "update emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "eliminar contacto de emergencia",
+      "action": "delete emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "visualizar solicitudes",
+      "action": "view requests",
+      "model": "requests"
+    },
+    {
+      "name": "crear solicitud",
+      "action": "create requests",
+      "model": "requests"
+    },
+    {
+      "name": "visualizar solicitud",
+      "action": "show request",
+      "model": "requests"
+    },
+    {
+      "name": "actualizar solicitud",
+      "action": "update requests",
+      "model": "requests"
+    },
+    {
+      "name": "eliminar solicitud",
+      "action": "delete requests",
+      "model": "requests"
     }
 ]

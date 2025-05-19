@@ -17,3 +17,4 @@ class Device(Base):
 
     user = relationship("User", back_populates="devices")
     devices_registration = relationship("DeviceRegistration", back_populates="device", cascade="all")
+    requests = relationship("Request", back_populates="device", cascade="all")

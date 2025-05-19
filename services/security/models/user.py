@@ -34,3 +34,4 @@ class User(Base):
     faqs = relationship("Faq", back_populates="user", cascade="all")
     contacts_support = relationship("ContactSupport", back_populates="user", cascade="all")
     devices = relationship("Device", back_populates="user", cascade="all")
+    emergency_contacts = relationship("EmergencyContact", back_populates="user", cascade="all")

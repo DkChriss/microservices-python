@@ -170,5 +170,45 @@
   {
     "user_id": 1,
     "permission_id": 43
+  },
+  {
+    "user_id": 1,
+    "permission_id": 44
+  },
+  {
+    "user_id": 1,
+    "permission_id": 45
+  },
+  {
+    "user_id": 1,
+    "permission_id": 46
+  },
+  {
+    "user_id": 1,
+    "permission_id": 47
+  },
+  {
+    "user_id": 1,
+    "permission_id": 48
+  },
+  {
+    "user_id": 1,
+    "permission_id": 49
+  },
+  {
+    "user_id": 1,
+    "permission_id": 50
+  },
+  {
+    "user_id": 1,
+    "permission_id": 51
+  },
+  {
+    "user_id": 1,
+    "permission_id": 52
+  },
+  {
+    "user_id": 1,
+    "permission_id": 53
   }
 ]
