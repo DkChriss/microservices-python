@@ -2,7 +2,10 @@ from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
+
+from services.security.models.category import Category
 from services.security.models.faq import Faq
+from services.security.models.user import User
 from services.security.schemas.faq import FaqResponse, FaqUpdate, FaqStore
 from services.security.utils.dependency import  get_db
 from services.security.utils.security import get_current_user
@@ -53,6 +56,18 @@ def store (
         faq_permission: Faq = Security(get_current_user, scopes=["create faqs"])
 ):
     try:
+        user = db.query(User).filter(User.id == faq_store.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar a esta pregunta frecuente"
+            )
+        category = db.query(Category).filter(Category.id == faq_store.category_id).first()
+        if category is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la categoria el cual desea asignar a esta pregunta frecuente"
+            )
         new_faq = Faq(**faq_store.model_dump())
         db.add(new_faq)
         db.commit()
@@ -101,6 +116,18 @@ def update(
         faq_permission: Faq = Security(get_current_user, scopes=["update faqs"])
 ):
     try:
+        user = db.query(User).filter(User.id == faq_update.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar a esta pregunta frecuente"
+            )
+        category = db.query(Category).filter(Category.id == faq_update.category_id).first()
+        if category is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la categoria el cual desea asignar a esta pregunta frecuente"
+            )
         current_faq = db.query(Faq).filter(Faq.id == id).first()
         if current_faq is None:
             raise HTTPException(

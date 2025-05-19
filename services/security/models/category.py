@@ -12,3 +12,6 @@ class Category(Base):
     slug: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
+
+    guides = relationship("Guide", back_populates="category")
+    faqs = relationship("Faq", back_populates="category")

@@ -2,7 +2,10 @@ from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
+
+from services.security.models.category import Category
 from services.security.models.guide import Guide
+from services.security.models.user import User
 from services.security.schemas.guide import GuideResponse, GuideUpdate, GuideStore
 from services.security.utils.dependency import  get_db
 from services.security.utils.security import get_current_user
@@ -53,6 +56,18 @@ def store (
         guide_permission: Guide = Security(get_current_user, scopes=["create guides"])
 ):
     try:
+        user = db.query(User).filter(User.id == guide_store.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar esta guia"
+            )
+        category = db.query(Category).filter(Category.id == guide_store.category_id).first()
+        if category is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la categoria el cual desea asignar a esta guia"
+            )
         new_guide = Guide(**guide_store.model_dump())
         db.add(new_guide)
         db.commit()
@@ -101,6 +116,18 @@ def update(
         guide_permission: Guide = Security(get_current_user, scopes=["update guides"])
 ):
     try:
+        user = db.query(User).filter(User.id == guide_update.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar esta guia"
+            )
+        category = db.query(Category).filter(Category.id == guide_update.category_id).first()
+        if category is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la categoria el cual desea asignar a esta guia"
+            )
         current_guide = db.query(Guide).filter(Guide.id == id).first()
         if guide_update is None:
             raise HTTPException(

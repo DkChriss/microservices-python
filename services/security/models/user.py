@@ -26,6 +26,10 @@ class User(Base):
     token_firebase: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
-
+    #N-M
     roles = relationship("Role", secondary='user_has_roles', back_populates="users", cascade="all")
     permissions = relationship("Permission", secondary='user_has_permissions', back_populates="users", cascade="all")
+    #1-N
+    guides = relationship("Guide", back_populates="user", cascade="all")
+    faqs = relationship("Faq", back_populates="user", cascade="all")
+    contacts_support = relationship("ContactSupport", back_populates="user", cascade="all")

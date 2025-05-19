@@ -6,6 +6,8 @@ class GuideStore(BaseModel):
     title: str
     subtitle: str
     content: str
+    user_id: int
+    category_id: int
 
 class GuideUpdate(BaseModel):
     id: int = None
@@ -13,6 +15,8 @@ class GuideUpdate(BaseModel):
     title: str = None
     subtitle: str = None
     content: str = None
+    user_id: int = None
+    category_id: int = None
 
 
 class GuideResponse(BaseModel):

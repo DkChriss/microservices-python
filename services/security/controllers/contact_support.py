@@ -3,6 +3,7 @@ from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy.orm import Session
 from services.security.models.contact_support import ContactSupport
+from services.security.models.user import User
 from services.security.schemas.contact_support import ContactSupportResponse, ContactSupportUpdate, ContactSupportStore
 from services.security.utils.dependency import  get_db
 from services.security.utils.security import get_current_user
@@ -53,6 +54,12 @@ def store (
         contact_support: ContactSupport = Security(get_current_user, scopes=["create contacts-support"])
 ):
     try:
+        user = db.query(User).filter(User.id == contact_support_store.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar este contacto de soporte"
+            )
         new_contact_support = ContactSupport(**contact_support_store.model_dump())
         db.add(new_contact_support)
         db.commit()
@@ -101,6 +108,12 @@ def update(
         contact_support: ContactSupport = Security(get_current_user, scopes=["update contacts-support"])
 ):
     try:
+        user = db.query(User).filter(User.id == contact_support_update.user_id).first()
+        if user is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No eiste el usuario el cual desea asignar esta contacto de soporte"
+            )
         current_contact_support = db.query(ContactSupport).filter(ContactSupport.id == id).first()
         if current_contact_support is None:
             raise HTTPException(
