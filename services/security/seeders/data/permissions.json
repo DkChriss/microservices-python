@@ -263,5 +263,30 @@
       "name": "eliminar solicitud",
       "action": "delete requests",
       "model": "requests"
+    },
+    {
+      "name": "visualizar solicitudes de desaparecidos",
+      "action": "view missing",
+      "model": "missing"
+    },
+    {
+      "name": "crear solicitud de desaparecido",
+      "action": "create missing",
+      "model": "missing"
+    },
+    {
+      "name": "visualizar solicitud de desaparecido",
+      "action": "show missing",
+      "model": "missing"
+    },
+    {
+      "name": "actualizar solicitud de desaparecido",
+      "action": "update missing",
+      "model": "missing"
+    },
+    {
+      "name": "eliminar solicitud de desaparecido",
+      "action": "delete missing",
+      "model": "missing"
     }
 ]

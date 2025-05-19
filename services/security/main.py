@@ -14,6 +14,7 @@ from services.security.controllers.device import router as device_router
 from services.security.controllers.device_registration import router as device_registration_router
 from services.security.controllers.emergency_contact import router as emergency_contact_router
 from services.security.controllers.request import router as request_router
+from services.security.controllers.missing import router as missing_router
 #MODELS
 from services.security.models.permission import Permission
 from services.security.models.user import User
@@ -29,6 +30,7 @@ from services.security.models.device import Device
 from services.security.models.device_registration import DeviceRegistration
 from services.security.models.emergency_contact import EmergencyContact
 from services.security.models.request import Request
+from services.security.models.missing import Missing
 #SEEDERS
 from services.security.seeders.seed import seed
 import os
@@ -65,4 +67,5 @@ app.include_router(device_router, prefix="/api/v1", tags=["devices"])
 app.include_router(device_registration_router, prefix="/api/v1", tags=["devices-registration"])
 app.include_router(emergency_contact_router, prefix="/api/v1", tags=["emergency-contacts"])
 app.include_router(request_router, prefix="/api/v1", tags=["requests"])
+app.include_router(missing_router, prefix="/api/v1", tags=["missing"])
 add_pagination(app)

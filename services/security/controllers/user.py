@@ -12,7 +12,7 @@ from services.security.schemas.user import UserRoles, UserPermissions, UserRespo
 from services.security.utils.dependency import  get_db
 from services.security.models.user import User
 from services.security.utils.security import get_current_user
-from services.security.utils.files import save_avatar_file
+from services.security.utils.files import save_image_file
 import os
 router = APIRouter()
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
@@ -75,7 +75,7 @@ def store(
     saved_avatar_path = None
 
     try:
-        relative_avatar_path = save_avatar_file(avatar, name, last_name, code)
+        relative_avatar_path = save_image_file(avatar, name, last_name, code, "avatars")
         saved_avatar_path = os.path.join("services", "security", relative_avatar_path)
 
         hashed_password = bcrypt_context.hash(password)
@@ -171,7 +171,7 @@ def update(
             )
 
         if avatar:
-            new_relative_avatar_path = save_avatar_file(avatar, name, last_name, code)
+            new_relative_avatar_path = save_image_file(avatar, name, last_name, code,"avatars")
             new_avatar_path = os.path.join("services", "security", new_relative_avatar_path)
 
             old_avatar_path = os.path.join("services", "security", current_user.avatar)

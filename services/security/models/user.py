@@ -1,4 +1,4 @@
-from sqlalchemy import  Integer, Text, Boolean, DateTime
+from sqlalchemy import  Integer, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 from datetime import datetime
@@ -35,3 +35,4 @@ class User(Base):
     contacts_support = relationship("ContactSupport", back_populates="user", cascade="all")
     devices = relationship("Device", back_populates="user", cascade="all")
     emergency_contacts = relationship("EmergencyContact", back_populates="user", cascade="all")
+    missing = relationship("Missing", back_populates="user", cascade="all")
