@@ -63,5 +63,105 @@
       "name": "asignar permisos",
       "action": "assign permissions",
       "model": "permissions"
+    },
+    {
+      "name": "visualizar categorias",
+      "action": "view categories",
+      "model": "categories"
+    },
+    {
+      "name": "crear categorias",
+      "action": "create categories",
+      "model": "categories"
+    },
+    {
+      "name": "visualizar categoria",
+      "action": "show category",
+      "model": "categories"
+    },
+    {
+      "name": "actualizar categorias",
+      "action": "update categories",
+      "model": "categories"
+    },
+    {
+      "name": "eliminar categorias",
+      "action": "delete categories",
+      "model": "categories"
+    },
+    {
+      "name": "visualizar preguntas frecuentes",
+      "action": "view faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "crear preguntas frecuentes",
+      "action": "create faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "visualizar pregunta frecuente",
+      "action": "show faq",
+      "model": "faqs"
+    },
+    {
+      "name": "actualizar preguntas frecuentes",
+      "action": "update faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "eliminar pregunta frecuentes",
+      "action": "delete faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "visualizar guias",
+      "action": "view guides",
+      "model": "guides"
+    },
+    {
+      "name": "crear guias",
+      "action": "create guides",
+      "model": "guides"
+    },
+    {
+      "name": "visualizar guia",
+      "action": "show guide",
+      "model": "guides"
+    },
+    {
+      "name": "actualizar guias",
+      "action": "update guides",
+      "model": "guides"
+    },
+    {
+      "name": "eliminar guia",
+      "action": "delete guides",
+      "model": "guides"
+    },
+    {
+      "name": "visualizar contactos de soporte",
+      "action": "view contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "crear contacto de soporte",
+      "action": "create contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "visualizar contacto de soporte",
+      "action": "show contact-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "actualizar contacto de soporte",
+      "action": "update contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "eliminar contacto de soporte",
+      "action": "delete contacts-support",
+      "model": "contacts-support"
     }
 ]
