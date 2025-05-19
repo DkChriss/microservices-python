@@ -10,6 +10,8 @@ from services.security.controllers.faq import router as faq_router
 from services.security.controllers.category import router as category_router
 from services.security.controllers.guide import router as guide_router
 from services.security.controllers.contact_support import router as contact_router
+from services.security.controllers.device import router as device_router
+from services.security.controllers.device_registration import router as device_registration_router
 #MODELS
 from services.security.models.permission import Permission
 from services.security.models.user import User
@@ -21,6 +23,8 @@ from services.security.models.contact_support import ContactSupport
 from services.security.models.category import Category
 from services.security.models.guide import Guide
 from services.security.models.faq import Faq
+from services.security.models.device import Device
+from services.security.models.device_registration import DeviceRegistration
 #SEEDERS
 from services.security.seeders.seed import seed
 import os
@@ -53,4 +57,6 @@ app.include_router(category_router, prefix="/api/v1", tags=["categories"])
 app.include_router(contact_router, prefix="/api/v1", tags=["contacts-support"])
 app.include_router(guide_router, prefix="/api/v1", tags=["guides"])
 app.include_router(faq_router, prefix="/api/v1", tags=["faqs"])
+app.include_router(device_router, prefix="/api/v1", tags=["devices"])
+app.include_router(device_registration_router, prefix="/api/v1", tags=["devices-registration"])
 add_pagination(app)

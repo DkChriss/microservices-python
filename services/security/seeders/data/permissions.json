@@ -163,5 +163,55 @@
       "name": "eliminar contacto de soporte",
       "action": "delete contacts-support",
       "model": "contacts-support"
+    },
+    {
+      "name": "visualizar dispositivos",
+      "action": "view devices",
+      "model": "devices"
+    },
+    {
+      "name": "crear dispositivo",
+      "action": "create devices",
+      "model": "devices"
+    },
+    {
+      "name": "visualizar dispositivo",
+      "action": "show device",
+      "model": "devices"
+    },
+    {
+      "name": "actualizar dispositivos",
+      "action": "update devices",
+      "model": "devices"
+    },
+    {
+      "name": "eliminar dispositivo",
+      "action": "delete devices",
+      "model": "devices"
+    },
+    {
+      "name": "visualizar registro de dispositivos",
+      "action": "view devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "crear registro de dispositivo",
+      "action": "create devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "visualizar registro de dispositivo",
+      "action": "show device-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "actualizar registro de dispositivo",
+      "action": "update devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "eliminar registro de dispositivo",
+      "action": "delete devices-registration",
+      "model": "devices-registration"
     }
 ]
