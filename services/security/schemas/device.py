@@ -15,9 +15,15 @@ class DeviceUpdate(BaseModel):
     name: str = None
     password: str = None
 
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    last_name: str
+    second_surname: str
+
 class DeviceResponse(BaseModel):
     id: int
-    user_id: int
+    user: UserResponse
     code: str
     name: str
     password: str

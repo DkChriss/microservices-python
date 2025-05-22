@@ -14,8 +14,13 @@ class FaqUpdate(BaseModel):
     user_id: int = None
     category_id: int = None
 
+class CategoryResponse(BaseModel):
+    id: int
+    title: str
+
 class FaqResponse(BaseModel):
     id: int
+    category: CategoryResponse
     question: str
     answer: str
 

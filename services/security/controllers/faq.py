@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from services.security.models.category import Category
 from services.security.models.faq import Faq
@@ -21,13 +21,14 @@ def list (
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(Faq), params)
+        query = db.query(Faq).options(joinedload(Faq.category))
+        response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
         return {
             "message": "Se ha obtenido la lista de preguntas frecuentes correctamente",
-            "data": [FaqResponse.model_validate(faq) for faq in response.items],
+            "data": [FaqResponse.model_validate(faq, from_attributes=True) for faq in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -74,7 +75,7 @@ def store (
         db.refresh(new_faq)
         return {
             "message": "Se ha registrado la pregunta frecuente correctamente",
-            "data": FaqResponse.model_validate(new_faq)
+            "data": FaqResponse.model_validate(new_faq, from_attributes=True)
         }
     except Exception as e:
         db.rollback()
@@ -98,7 +99,7 @@ def show(
             )
         return {
             "message": "Se ha obtenido la pregunte frecuente correctamente",
-            "data": FaqResponse.model_validate(faq)
+            "data": FaqResponse.model_validate(faq, from_attributes=True)
         }
 
     except Exception as e:
@@ -142,7 +143,7 @@ def update(
 
         return {
             "message": "Se ha actualizado la pregunta frecuente correctamente",
-            "data": FaqResponse.model_validate(current_faq)
+            "data": FaqResponse.model_validate(current_faq, from_attributes=True)
         }
 
     except Exception as e:

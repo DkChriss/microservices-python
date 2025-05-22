@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from services.security.models.category import Category
 from services.security.models.guide import Guide
@@ -21,13 +21,15 @@ def list (
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(Guide), params)
+        query = db.query(Guide).options(joinedload(Guide.category))
+
+        response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
         return {
             "message": "Se ha obtenido la lista de guias correctamente",
-            "data": [GuideResponse.model_validate(guide) for guide in response.items],
+            "data": [GuideResponse.model_validate(guide, from_attributes=True) for guide in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -74,7 +76,7 @@ def store (
         db.refresh(new_guide)
         return {
             "message": "Se ha registrado la guia correctamente",
-            "data": GuideResponse.model_validate(new_guide)
+            "data": GuideResponse.model_validate(new_guide, from_attributes=True)
         }
     except Exception as e:
         db.rollback()
@@ -98,7 +100,7 @@ def show(
             )
         return {
             "message": "Se ha obtenido la guia correctamente",
-            "data": GuideResponse.model_validate(guide)
+            "data": GuideResponse.model_validate(guide, from_attributes=True)
         }
 
     except Exception as e:
@@ -142,7 +144,7 @@ def update(
 
         return {
             "message": "Se ha actualizado la guia correctamente",
-            "data": GuideResponse.model_validate(current_guide)
+            "data": GuideResponse.model_validate(current_guide, from_attributes=True)
         }
 
     except Exception as e:

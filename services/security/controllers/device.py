@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from services.security.models.device import Device
 from services.security.schemas.device import DeviceResponse, DeviceUpdate, DeviceStore
 from services.security.utils.dependency import  get_db
@@ -18,13 +18,14 @@ def list (
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(Device),params)
+        query = db.query(Device).options(joinedload((Device.user)))
+        response = paginate(query,params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
         return {
             "message": "Se ha obtenido la lista de dispositivos correctamente",
-            "data": [DeviceResponse.model_validate(device) for device in response.items],
+            "data": [DeviceResponse.model_validate(device, from_attributes=True) for device in response.items],
             "total": response.total,
             "page": response.page,
             "size": response.size,
@@ -59,7 +60,7 @@ def store (
         db.refresh(new_device)
         return {
             "message": "Se ha registrado el dispositivo correctamente",
-            "data": DeviceResponse.model_validate(new_device)
+            "data": DeviceResponse.model_validate(new_device, from_attributes=True)
         }
     except Exception as e:
         db.rollback()
@@ -83,7 +84,7 @@ def show(
             )
         return {
             "message": "Se ha obtenido el dispositivo correctamente",
-            "data": DeviceResponse.model_validate(device)
+            "data": DeviceResponse.model_validate(device, from_attributes=True)
         }
 
     except Exception as e:
@@ -115,7 +116,7 @@ def update(
 
         return {
             "message": "Se ha actualizado el dispositivo correctamente",
-            "data": DeviceResponse.model_validate(current_device)
+            "data": DeviceResponse.model_validate(current_device, from_attributes=True)
         }
 
     except Exception as e:

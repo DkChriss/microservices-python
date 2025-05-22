@@ -19,8 +19,13 @@ class GuideUpdate(BaseModel):
     category_id: int = None
 
 
+class CategoryResponse(BaseModel):
+    id: int
+    title: str
+
 class GuideResponse(BaseModel):
     id: int
+    category: CategoryResponse
     slug: str
     title: str
     subtitle: str
