@@ -11,7 +11,7 @@ class EmergencyContact(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
     name: Mapped[str] = mapped_column(Text)
     line: Mapped[str] = mapped_column(Text)
-    phone: Mapped[int] = mapped_column(Integer)
+    phone: Mapped[str] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
 

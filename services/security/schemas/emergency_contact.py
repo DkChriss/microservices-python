@@ -5,20 +5,20 @@ class EmergencyContactStore(BaseModel):
     user_id: int
     name: str
     line: str
-    phone: int
+    phone: str
 
 class EmergencyContactUpdate(BaseModel):
     id: int = None
     user_id: int = None
     name: str = None
     line: str = None
-    phone: int = None
+    phone: str = None
 
 class EmergencyContactResponse(BaseModel):
     id: int
     name: str
     line: str
-    phone: int
+    phone: str
 
     class Config:
         from_attributes = True

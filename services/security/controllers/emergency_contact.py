@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.emergency_contact import EmergencyContact
 from services.security.schemas.emergency_contact import EmergencyContactResponse, EmergencyContactUpdate, \
@@ -18,12 +19,22 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Contactos de emergencia por pagina"),
+    search: str = Query("", description="Buscar contacto de emergencia"),
     db: Session = Depends(get_db),
     emergency_contact_permission: EmergencyContact = Security(get_current_user, scopes=["view emergency-contacts"])
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(EmergencyContact),params)
+        query = db.query(EmergencyContact)
+        if search:
+            query = query.filter(
+                or_(
+                    EmergencyContact.name.like(f"%{search}%"),
+                    EmergencyContact.phone.like(f"%{search}%"),
+                    EmergencyContact.line.like(f"%{search}%")
+                )
+            )
+        response = paginate(query,params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None

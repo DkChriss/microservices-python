@@ -1,8 +1,10 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, joinedload, aliased
 from services.security.models.device import Device
+from services.security.models.user import User
 from services.security.schemas.device import DeviceResponse, DeviceUpdate, DeviceStore
 from services.security.utils.dependency import  get_db
 from services.security.utils.security import get_current_user
@@ -13,12 +15,24 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Dispositivos por pagina"),
+    search: str = Query("", description="Buscar dispositivo"),
     db: Session = Depends(get_db),
     device_permission: Device = Security(get_current_user, scopes=["view devices"])
 ):
     try:
+        user = aliased(User)
         params = Params(page=page, size=size)
-        query = db.query(Device).options(joinedload((Device.user)))
+        query = db.query(Device).join(user)
+        if search:
+            query = query.filter(
+                or_(
+                    user.name.like(f'%{search}%'),
+                    user.last_name.like(f'%${search}%'),
+                    user.second_surname.like(f'%{search}%'),
+                    Device.code.like(f'%{search}%'),
+                    Device.name.like(f'%{search}%')
+                )
+            )
         response = paginate(query,params)
 
         next_page = page + 1 if page * size < response.total else None

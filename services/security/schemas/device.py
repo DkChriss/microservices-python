@@ -6,7 +6,7 @@ class DeviceStore(BaseModel):
     code: str
     name: str
     password: str
-    status: bool
+    status: bool = False
 
 class DeviceUpdate(BaseModel):
     id: int = None
@@ -26,7 +26,7 @@ class DeviceResponse(BaseModel):
     user: UserResponse
     code: str
     name: str
-    password: str
+    status: bool
 
     class Config:
         from_attributes = True

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from services.security.models.category import Category
@@ -14,12 +15,22 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Categorias por pagina"),
+    search: str = Query("", description="Buscar categoria"),
     db: Session = Depends(get_db),
     category_permission: Category = Security(get_current_user, scopes=["view categories"])
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(Category), params)
+        query = db.query(Category)
+
+        if search:
+            query = query.filter(
+                or_(
+                    Category.title.like(f"%{search}%"),
+                    Category.slug.like(f"%{search}%")
+                )
+            )
+        response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
