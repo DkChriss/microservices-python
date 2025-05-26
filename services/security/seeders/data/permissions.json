@@ -63,5 +63,230 @@
       "name": "asignar permisos",
       "action": "assign permissions",
       "model": "permissions"
+    },
+    {
+      "name": "visualizar categorias",
+      "action": "view categories",
+      "model": "categories"
+    },
+    {
+      "name": "crear categorias",
+      "action": "create categories",
+      "model": "categories"
+    },
+    {
+      "name": "visualizar categoria",
+      "action": "show category",
+      "model": "categories"
+    },
+    {
+      "name": "actualizar categorias",
+      "action": "update categories",
+      "model": "categories"
+    },
+    {
+      "name": "eliminar categorias",
+      "action": "delete categories",
+      "model": "categories"
+    },
+    {
+      "name": "visualizar preguntas frecuentes",
+      "action": "view faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "crear preguntas frecuentes",
+      "action": "create faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "visualizar pregunta frecuente",
+      "action": "show faq",
+      "model": "faqs"
+    },
+    {
+      "name": "actualizar preguntas frecuentes",
+      "action": "update faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "eliminar pregunta frecuentes",
+      "action": "delete faqs",
+      "model": "faqs"
+    },
+    {
+      "name": "visualizar guias",
+      "action": "view guides",
+      "model": "guides"
+    },
+    {
+      "name": "crear guias",
+      "action": "create guides",
+      "model": "guides"
+    },
+    {
+      "name": "visualizar guia",
+      "action": "show guide",
+      "model": "guides"
+    },
+    {
+      "name": "actualizar guias",
+      "action": "update guides",
+      "model": "guides"
+    },
+    {
+      "name": "eliminar guia",
+      "action": "delete guides",
+      "model": "guides"
+    },
+    {
+      "name": "visualizar contactos de soporte",
+      "action": "view contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "crear contacto de soporte",
+      "action": "create contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "visualizar contacto de soporte",
+      "action": "show contact-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "actualizar contacto de soporte",
+      "action": "update contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "eliminar contacto de soporte",
+      "action": "delete contacts-support",
+      "model": "contacts-support"
+    },
+    {
+      "name": "visualizar dispositivos",
+      "action": "view devices",
+      "model": "devices"
+    },
+    {
+      "name": "crear dispositivo",
+      "action": "create devices",
+      "model": "devices"
+    },
+    {
+      "name": "visualizar dispositivo",
+      "action": "show device",
+      "model": "devices"
+    },
+    {
+      "name": "actualizar dispositivos",
+      "action": "update devices",
+      "model": "devices"
+    },
+    {
+      "name": "eliminar dispositivo",
+      "action": "delete devices",
+      "model": "devices"
+    },
+    {
+      "name": "visualizar registro de dispositivos",
+      "action": "view devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "crear registro de dispositivo",
+      "action": "create devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "visualizar registro de dispositivo",
+      "action": "show device-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "actualizar registro de dispositivo",
+      "action": "update devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "eliminar registro de dispositivo",
+      "action": "delete devices-registration",
+      "model": "devices-registration"
+    },
+    {
+      "name": "visualizar contactos de emergencia",
+      "action": "view emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "crear contacto de emergencia",
+      "action": "create emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "visualizar contacto de emergencia",
+      "action": "show emergency-contact",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "actualizar contacto de emergencia",
+      "action": "update emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "eliminar contacto de emergencia",
+      "action": "delete emergency-contacts",
+      "model": "emergency-contacts"
+    },
+    {
+      "name": "visualizar solicitudes",
+      "action": "view requests",
+      "model": "requests"
+    },
+    {
+      "name": "crear solicitud",
+      "action": "create requests",
+      "model": "requests"
+    },
+    {
+      "name": "visualizar solicitud",
+      "action": "show request",
+      "model": "requests"
+    },
+    {
+      "name": "actualizar solicitud",
+      "action": "update requests",
+      "model": "requests"
+    },
+    {
+      "name": "eliminar solicitud",
+      "action": "delete requests",
+      "model": "requests"
+    },
+    {
+      "name": "visualizar solicitudes de desaparecidos",
+      "action": "view missing",
+      "model": "missing"
+    },
+    {
+      "name": "crear solicitud de desaparecido",
+      "action": "create missing",
+      "model": "missing"
+    },
+    {
+      "name": "visualizar solicitud de desaparecido",
+      "action": "show missing",
+      "model": "missing"
+    },
+    {
+      "name": "actualizar solicitud de desaparecido",
+      "action": "update missing",
+      "model": "missing"
+    },
+    {
+      "name": "eliminar solicitud de desaparecido",
+      "action": "delete missing",
+      "model": "missing"
     }
 ]
