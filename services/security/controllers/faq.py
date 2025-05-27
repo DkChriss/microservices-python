@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Session, joinedload, aliased
 
 from services.security.models.category import Category
 from services.security.models.faq import Faq
@@ -16,10 +16,12 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Preguntas frecuentes por pagina"),
+    search: str = Query(description="Buscar pregunta frecuente"),
     db: Session = Depends(get_db),
     faq_permission: Faq = Security(get_current_user, scopes=["view faqs"])
 ):
     try:
+        category = aliased(Category)
         params = Params(page=page, size=size)
         query = db.query(Faq).options(joinedload(Faq.category))
         response = paginate(query, params)

@@ -1,7 +1,8 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_
+from sqlalchemy.orm import Session, joinedload, aliased, join
 
 from services.security.models.category import Category
 from services.security.models.guide import Guide
@@ -16,13 +17,25 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Guias por pagina"),
+    search: str = Query("", description="Buscar guia"),
     db: Session = Depends(get_db),
     guide_permission: Guide = Security(get_current_user, scopes=["view guides"])
 ):
     try:
-        params = Params(page=page, size=size)
-        query = db.query(Guide).options(joinedload(Guide.category))
+        category = aliased(Category)
 
+        params = Params(page=page, size=size)
+        query = db.query(Guide).join(category)
+        if search:
+            query = query.filter(
+                or_(
+                    Guide.title.like(f'%{search}%'),
+                    Guide.slug.like(f'%{search}%'),
+                    Guide.subtitle.like(f'%{search}%'),
+                    Guide.content.like(f'%{search}%'),
+                    category.title.like(f'%{search}%')
+                )
+            )
         response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None
