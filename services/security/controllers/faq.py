@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session, joinedload, aliased
 
 from services.security.models.category import Category
@@ -23,7 +24,15 @@ def list (
     try:
         category = aliased(Category)
         params = Params(page=page, size=size)
-        query = db.query(Faq).options(joinedload(Faq.category))
+        query = db.query(Faq).join(category)
+        if search:
+            query = query.filter(
+                or_(
+                    category.title.like(f'%{search}%'),
+                    Faq.question.like(f'%{search}%'),
+                    Faq.answer.like(f'%{search}%'),
+                )
+            )
         response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None

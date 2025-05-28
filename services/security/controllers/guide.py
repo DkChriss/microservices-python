@@ -23,7 +23,6 @@ def list (
 ):
     try:
         category = aliased(Category)
-
         params = Params(page=page, size=size)
         query = db.query(Guide).join(category)
         if search:

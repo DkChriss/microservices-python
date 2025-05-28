@@ -5,6 +5,7 @@ from typing import Dict, Any
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.missing import Missing
 from services.security.models.status_missing import StatusMissingEnum
@@ -23,12 +24,23 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Solicitudes de desaparecidos por pagina"),
+    search: str = Query(description="Buscar solicitud de desaparecidos"),
     db: Session = Depends(get_db),
     missing_permission: Missing = Security(get_current_user, scopes=["view missing"])
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(Missing),params)
+        query = db.query(Missing)
+        if search:
+            query = query.filter(
+                or_(
+                    Missing.name.like(f'%{search}%'),
+                    Missing.last_name.like(f'%{search}%'),
+                    Missing.status_missing.like(f'%{search}%'),
+                    Missing.reporter_phone.like(f'%{search}%')
+                )
+            )
+        response = paginate(query,params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None

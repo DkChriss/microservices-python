@@ -15,7 +15,7 @@ class MissingUpdate(BaseModel):
     birthdate: date = None
     disappearance_date: date = None
     place_of_disappearance: str = None
-    status: StatusMissingEnum = None
+    status_missing: StatusMissingEnum = None
     photo: str = None
     characteristics: str = None
     reporter_name: str = None

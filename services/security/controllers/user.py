@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
 from pydantic import EmailStr
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.permission import Permission
 from services.security.models.role import Role
@@ -25,12 +26,24 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Usuarios por pagina"),
+        search: str = Query(description="Buscar usuario"),
         db: Session = Depends(get_db),
         user_permission: User = Security(get_current_user, scopes=["view users"])
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(User), params)
+        query = db.query(User)
+        if search:
+            query = query.filter(
+                or_(
+                    User.name.like(f'%{search}%'),
+                    User.last_name.like(f'%{search}%'),
+                    User.second_surname.like(f'%{search}%'),
+                    User.phone.like(f'%{search}%'),
+                    User.code.like(f'%{search}%')
+                )
+            )
+        response = paginate(query, params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None
