@@ -29,7 +29,6 @@ class Missing(Base):
     reporter_name: Mapped[str] = mapped_column(Text)
     reporter_phone: Mapped[int] = mapped_column(Integer)
     event_photo: Mapped[str] = mapped_column(Text)
-    location: Mapped[JSON] = mapped_column(JSON)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
 

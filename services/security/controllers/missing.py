@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import date
-from typing import Dict, Any
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
@@ -9,7 +8,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.missing import Missing
 from services.security.models.status_missing import StatusMissingEnum
-from services.security.schemas.missing import MissingResponse, MissingUpdate
+from services.security.schemas.missing import MissingResponse
 from services.security.utils.dependency import  get_db
 from services.security.utils.files import save_image_file
 from services.security.utils.security import get_current_user
@@ -24,7 +23,7 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Solicitudes de desaparecidos por pagina"),
-    search: str = Query(description="Buscar solicitud de desaparecidos"),
+    search: str = Query("",description="Buscar solicitud de desaparecidos"),
     db: Session = Depends(get_db),
     missing_permission: Missing = Security(get_current_user, scopes=["view missing"])
 ):
@@ -85,7 +84,6 @@ def store (
         reporter_name: str = Form(...),
         reporter_phone: int = Form(...),
         event_photo: UploadFile = File(...),
-        location: str = Form(...),
         db: Session = Depends(get_db),
         missing_permission: Missing = Security(get_current_user, scopes=["create missing"])
 ):
@@ -115,7 +113,6 @@ def store (
             reporter_name=reporter_name,
             reporter_phone=reporter_phone,
             event_photo=relative_photo_event_path,
-            location=json.loads(location)
         )
         db.add(new_missing)
         db.commit()
@@ -186,7 +183,6 @@ def update(
         reporter_name: str = Form(...),
         reporter_phone: int = Form(...),
         event_photo: UploadFile = File(None),
-        location: str = Form(...),
         db: Session = Depends(get_db),
         missing_permission: Missing = Security(get_current_user, scopes=["update missing"])
 ):
@@ -231,7 +227,6 @@ def update(
         current_missing.characteristics = characteristics
         current_missing.reporter_name = reporter_name
         current_missing.reporter_phone = reporter_phone
-        current_missing.location = json.loads(location)
         db.commit()
         db.refresh(current_missing)
 

@@ -18,7 +18,7 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Solicitudes por pagina"),
-    search: str = Query(description="Buscar solicitudes"),
+    search: str = Query("",description="Buscar solicitudes"),
     db: Session = Depends(get_db),
     request_permission: Request = Security(get_current_user, scopes=["view requests"])
 ):

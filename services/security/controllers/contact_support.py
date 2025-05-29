@@ -15,7 +15,7 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Contactos de soporte por pagina"),
-    search: str = Query(description="Buscar contacto de soporte"),
+    search: str = Query("",description="Buscar contacto de soporte"),
     db: Session = Depends(get_db),
     contact_support: ContactSupport = Security(get_current_user, scopes=["view contacts-support"])
 ):

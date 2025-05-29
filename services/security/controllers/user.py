@@ -26,7 +26,7 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Usuarios por pagina"),
-        search: str = Query(description="Buscar usuario"),
+        search: str = Query("",description="Buscar usuario"),
         db: Session = Depends(get_db),
         user_permission: User = Security(get_current_user, scopes=["view users"])
 ):

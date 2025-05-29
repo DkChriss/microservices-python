@@ -17,7 +17,7 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Preguntas frecuentes por pagina"),
-    search: str = Query(description="Buscar pregunta frecuente"),
+    search: str = Query("",description="Buscar pregunta frecuente"),
     db: Session = Depends(get_db),
     faq_permission: Faq = Security(get_current_user, scopes=["view faqs"])
 ):

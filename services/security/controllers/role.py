@@ -20,7 +20,7 @@ router = APIRouter()
 def list(
         page: int = Query(1, ge=1, description="Numero de pagina"),
         size: int = Query(10, ge=1, le=100, description="Roles por pagina"),
-        search: str = Query(description='Buscar rol'),
+        search: str = Query("",description='Buscar rol'),
         db: Session = Depends(get_db),
         role_permission: Role = Security(get_current_user, scopes=["view roles"])
 ):

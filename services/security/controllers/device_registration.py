@@ -15,7 +15,7 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Registro de dispositivos por pagina"),
-    search: str = Query(description="Buscar registro de dispositivo"),
+    search: str = Query("",description="Buscar registro de dispositivo"),
     db: Session = Depends(get_db),
     device_registration: DeviceRegistration = Security(get_current_user, scopes=["view devices-registration"])
 ):
