@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.device_registration import DeviceRegistration
 from services.security.schemas.device_registration import DeviceRegistrationUpdate, DeviceRegistrationResponse, \
@@ -14,12 +15,21 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Registro de dispositivos por pagina"),
+    search: str = Query("",description="Buscar registro de dispositivo"),
     db: Session = Depends(get_db),
     device_registration: DeviceRegistration = Security(get_current_user, scopes=["view devices-registration"])
 ):
     try:
         params = Params(page=page, size=size)
-        response = paginate(db.query(DeviceRegistration),params)
+        query = db.query(DeviceRegistration)
+        if search:
+            query = query.filter(
+                or_(
+                    DeviceRegistration.wifi.like(f'%{search}%'),
+                    DeviceRegistration.location.like(f'%{search}%'),
+                )
+            )
+        response = paginate(query,params)
 
         next_page = page + 1 if page * size < response.total else None
         prev_page = page - 1 if page > 1 else None

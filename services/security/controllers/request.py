@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Security
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.request import Request
 from services.security.schemas.request import RequestResponse, RequestUpdate, RequestStore
@@ -17,11 +18,21 @@ router = APIRouter()
 def list (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Solicitudes por pagina"),
+    search: str = Query("",description="Buscar solicitudes"),
     db: Session = Depends(get_db),
     request_permission: Request = Security(get_current_user, scopes=["view requests"])
 ):
     try:
         params = Params(page=page, size=size)
+        query = db.query(Request)
+        if search:
+            query = query.filter(
+                or_(
+                    Request.address.like(f'%{search}%'),
+                    Request.wifi.like(f'%{search}%'),
+                    Request.location.like(f'%{search}%'),
+                )
+            )
         response = paginate(db.query(Request),params)
 
         next_page = page + 1 if page * size < response.total else None
