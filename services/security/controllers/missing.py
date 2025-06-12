@@ -281,3 +281,34 @@ def destroy(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al eliminar la solicitud de desaparecido {e}"
         )
+
+@router.put(
+    '/missing/update-status/{id}',
+    status_code=status.HTTP_200_OK,
+    tags=['missing']
+)
+def updateStatus(
+        id: int,
+        status_missing: StatusMissingEnum = Form(...),
+        db: Session = Depends(get_db),
+        missing_permission: Missing = Security(get_current_user, scopes=["update missing"])
+):
+    try:
+        missing = db.query(Missing).filter(Missing.id == id).first()
+        if missing is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la solicitud de desaparecido que desea actualizar"
+            )
+        missing.status_missing = status_missing
+        db.commit()
+        db.refresh(missing)
+        return {
+            "message": "Se ha actualizado el estado de la solicitud de desaparecido correctamente"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar el estado de la solicitud de desaparecido {e}"
+        )
