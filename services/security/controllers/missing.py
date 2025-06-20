@@ -4,6 +4,7 @@ from datetime import date
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from pydantic import BaseModel
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.missing import Missing
@@ -282,6 +283,9 @@ def destroy(
             detail=f"Error al eliminar la solicitud de desaparecido {e}"
         )
 
+class UpdateStatusBody(BaseModel):
+    status_missing: StatusMissingEnum
+
 @router.put(
     '/missing/update-status/{id}',
     status_code=status.HTTP_200_OK,
@@ -289,7 +293,7 @@ def destroy(
 )
 def updateStatus(
         id: int,
-        status_missing: StatusMissingEnum = Form(...),
+        updateStatusBody: UpdateStatusBody,
         db: Session = Depends(get_db),
         missing_permission: Missing = Security(get_current_user, scopes=["update missing"])
 ):
@@ -300,7 +304,7 @@ def updateStatus(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe la solicitud de desaparecido que desea actualizar"
             )
-        missing.status_missing = status_missing
+        missing.status_missing = updateStatusBody.status_missing
         db.commit()
         db.refresh(missing)
         return {
