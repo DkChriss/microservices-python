@@ -14,7 +14,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(Text)
     last_name: Mapped[str] = mapped_column(Text)
     second_surname: Mapped[str] = mapped_column(Text)
-    email: Mapped[str] = mapped_column(Text, unique=True)
+    email: Mapped[str] = mapped_column(Text)
     avatar: Mapped[str] = mapped_column(Text)
     status: Mapped[StatusEnum] = mapped_column(
         SQLEnum(StatusEnum, name="status"),
@@ -22,7 +22,7 @@ class User(Base):
         nullable=False
     )
     password: Mapped[str] = mapped_column(Text)
-    phone: Mapped[int] = mapped_column(Integer, unique=True)
+    phone: Mapped[int] = mapped_column(Integer)
     token_firebase: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))

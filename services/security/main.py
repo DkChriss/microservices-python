@@ -15,6 +15,7 @@ from services.security.controllers.device_registration import router as device_r
 from services.security.controllers.emergency_contact import router as emergency_contact_router
 from services.security.controllers.request import router as request_router
 from services.security.controllers.missing import router as missing_router
+from services.security.controllers.permission import router as permission_router
 #MODELS
 from services.security.models.permission import Permission
 from services.security.models.user import User
@@ -59,6 +60,7 @@ seed()
 app.include_router(user_router, prefix="/api/v1", tags=["users"])
 app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 app.include_router(role_router, prefix="/api/v1", tags=["roles"])
+app.include_router(permission_router, prefix="/api/v1", tags=["permissions"])
 app.include_router(category_router, prefix="/api/v1", tags=["categories"])
 app.include_router(contact_router, prefix="/api/v1", tags=["contacts-support"])
 app.include_router(guide_router, prefix="/api/v1", tags=["guides"])
