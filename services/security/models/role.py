@@ -13,5 +13,5 @@ class Role(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
 
-    users = relationship("User", secondary='user_has_roles', back_populates="roles", cascade="all")
-    permissions = relationship("Permission", secondary='role_has_permissions', back_populates="roles", cascade="all")
+    users = relationship("User", secondary='user_has_roles', back_populates="roles")
+    permissions = relationship("Permission", secondary='role_has_permissions', back_populates="roles")
