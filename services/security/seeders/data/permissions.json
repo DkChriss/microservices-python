@@ -288,5 +288,16 @@
       "name": "eliminar solicitud de desaparecido",
       "action": "delete missing",
       "model": "missing"
+    },
+    {
+      "name": "visualizar reportes de desaparecido",
+      "action": "view reports",
+      "model": "report"
+    }
+  ,
+    {
+      "name": "registrar reporte de desaparecido",
+      "action": "create reports",
+      "model": "report"
     }
 ]
