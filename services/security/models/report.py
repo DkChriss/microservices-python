@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, Text, ForeignKey, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 import datetime
 
@@ -11,7 +11,7 @@ class Report(Base):
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=True)
     name: Mapped[str] = mapped_column(Text)
     email: Mapped[str] = mapped_column(Text, nullable=True)
-    phone: Mapped[int] = mapped_column(Integer)
+    phone: Mapped[str] = mapped_column(Text)
     location: Mapped[str] = mapped_column(Text)
     date: Mapped[datetime.datetime] = mapped_column(DateTime)
     description: Mapped[Text] = mapped_column(Text)
@@ -19,3 +19,4 @@ class Report(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+    missing: Mapped["Missing"] = relationship("Missing", back_populates="reports")  # string aquí

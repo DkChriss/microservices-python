@@ -293,11 +293,26 @@
       "name": "visualizar reportes de desaparecido",
       "action": "view reports",
       "model": "report"
-    }
-  ,
+    },
     {
       "name": "registrar reporte de desaparecido",
       "action": "create reports",
       "model": "report"
+    },
+    {
+      "name": "visualizar reporte de desaparecido",
+      "action": "show report",
+      "model": "report"
+    },
+    {
+      "name": "editar reporte de desaparecido",
+      "action": "update reports",
+      "model": "report"
+    },
+    {
+      "name": "eliminar reporte de desaparecido",
+      "action": "delete reports",
+      "model": "report"
     }
+
 ]

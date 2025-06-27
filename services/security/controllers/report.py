@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Security, Form, UploadFile, File
 from fastapi_pagination import Params
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from services.security.models.report import Report
 from services.security.schemas.report import ReportResponse, ReportStore, ReportUpdate
 from services.security.utils.dependency import  get_db
@@ -95,7 +95,9 @@ def show(
         report_permission: Report = Security(get_current_user, scopes=["show report"])
 ):
     try:
-        report = db.query(Report).filter(Report.id == id).first()
+        report = db.query(Report).options(
+            joinedload(Report.missing)
+        ).filter(Report.id == id).first()
         if report is None:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

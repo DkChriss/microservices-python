@@ -1,6 +1,5 @@
 from pydantic import BaseModel
-from sqlalchemy import DateTime
-
+from datetime import datetime
 
 class ReportStore(BaseModel):
     missing_id: int
@@ -9,7 +8,8 @@ class ReportStore(BaseModel):
     email: str
     phone: str
     location: str
-    date: DateTime
+    date: datetime
+    description: str
 
     class Config:
         from_attributes = True
@@ -23,11 +23,18 @@ class ReportUpdate(BaseModel):
     email: str = None
     phone: str = None
     location: str = None
-    date: DateTime = None
+    date: datetime = None
 
     class Config:
         from_attributes = True
         arbitrary_types_allowed = True
+
+class MissingInfo(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        from_attributes = True
 
 class ReportResponse(BaseModel):
     id: int
@@ -35,7 +42,9 @@ class ReportResponse(BaseModel):
     email: str
     phone: str
     location: str
-    date: DateTime
+    date: datetime
+    description: str
+    missing: MissingInfo
 
     class Config:
         from_attributes = True
