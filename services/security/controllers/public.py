@@ -1,14 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from services.security.models.missing import Missing
-from services.security.schemas.missing import MissingResponse
 from services.security.schemas.report import ReportResponse
 from services.security.utils.dependency import  get_db
 from sqlalchemy.orm import Session
 from services.security.schemas.report import ReportStore
 from services.security.models.report import Report
+from services.security.utils.files import save_image_file
+from services.security.schemas.missing import MissingResponse
+from services.security.models.status_missing import StatusMissingEnum
+from datetime import date
+
 import os
 import base64
 import mimetypes
@@ -61,11 +65,19 @@ def list (
 
         if search:
             query = query.filter(
-                or_(
-                    Missing.name.like(f'%{search}%'),
-                    Missing.last_name.like(f'%{search}%'),
-                    Missing.status_missing.like(f'%{search}%'),
-                    Missing.reporter_phone.like(f'%{search}%')
+                and_(
+                    or_(
+                        Missing.name.like(f'%{search}%'),
+                        Missing.last_name.like(f'%{search}%'),
+                        Missing.reporter_phone.like(f'%{search}%'),
+                    ),
+                    Missing.status_missing == "progress"
+                )
+            )
+        else:
+            query = query.filter(
+                and_(
+                    Missing.status_missing == "progress"
                 )
             )
         response = paginate(query,params)
@@ -104,4 +116,68 @@ def list (
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener la lista de solicitudes de desaparecidos {e}"
+        )
+
+@router.post(
+    '/missing',
+    status_code=status.HTTP_201_CREATED,
+)
+def store (
+        name: str = Form(...),
+        last_name: str = Form(...),
+        age: int = Form(...),
+        gender: str = Form(...),
+        description: str = Form(...),
+        birthdate: date = Form(...),
+        disappearance_date: date = Form(...),
+        place_of_disappearance: str = Form(...),
+        photo: UploadFile = File(...),
+        characteristics: str = Form(...),
+        reporter_name: str = Form(...),
+        reporter_phone: int = Form(...),
+        event_photo: UploadFile = File(...),
+        db: Session = Depends(get_db),
+):
+    saved_photo_path = None
+    saved_event_photo_path = None
+
+    try:
+        relative_photo_path = save_image_file(photo, f"perfil_{name}", last_name, disappearance_date, "missing")
+        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+
+        relative_photo_event_path = save_image_file(event_photo, f"evento_{name}", last_name, disappearance_date, "missing")
+        saved_event_photo_path = os.path.join("services", "security", relative_photo_event_path)
+
+        new_missing = Missing(
+            name=name,
+            last_name=last_name,
+            age=age,
+            gender=gender,
+            description=description,
+            birthdate=birthdate,
+            disappearance_date=disappearance_date,
+            place_of_disappearance=place_of_disappearance,
+            status_missing=StatusMissingEnum.pending,
+            photo=relative_photo_path,
+            characteristics=characteristics,
+            reporter_name=reporter_name,
+            reporter_phone=reporter_phone,
+            event_photo=relative_photo_event_path,
+        )
+        db.add(new_missing)
+        db.commit()
+        db.refresh(new_missing)
+        return {
+            "message": "Se ha registrado la solicitud de desaparecido correctamente",
+            "data": MissingResponse.model_validate(new_missing)
+        }
+    except Exception as e:
+        db.rollback()
+        if saved_photo_path and os.path.exists(saved_photo_path):
+            os.remove(saved_photo_path)
+        if saved_event_photo_path and os.path.exists(saved_event_photo_path):
+            os.remove(saved_event_photo_path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear la solicitud de desaparecido {e}"
         )
