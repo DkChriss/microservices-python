@@ -19,4 +19,5 @@ class Report(Base):
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
-    missing: Mapped["Missing"] = relationship("Missing", back_populates="reports")  # string aquí
+    missing: Mapped["Missing"] = relationship("Missing", back_populates="reports")
+    report_has_files: Mapped[list["ReportHasFiles"]] = relationship("ReportHasFiles", back_populates="reports")

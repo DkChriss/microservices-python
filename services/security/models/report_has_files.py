@@ -1,5 +1,5 @@
 from sqlalchemy import Integer, Text, ForeignKey, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 import datetime
 from services.security.config.database import Base
 
@@ -14,3 +14,5 @@ class ReportHasFiles(Base):
 
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow)
     updated_at: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+
+    report: Mapped["Report"] = relationship("Report", back_populates="report_has_files")

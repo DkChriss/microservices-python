@@ -1,12 +1,16 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException, Query, status, Security, Form, UploadFile, File
 from fastapi_pagination import Params
 from sqlalchemy.orm import Session, joinedload
 from services.security.models.report import Report
+from services.security.models.report_has_files import ReportHasFiles
 from services.security.schemas.report import ReportResponse, ReportStore, ReportUpdate
 from services.security.utils.dependency import  get_db
 from fastapi_pagination.ext.sqlalchemy import paginate
 from services.security.utils.security import get_current_user
 from sqlalchemy import or_
+from services.security.utils.files import save_image_file
 
 router = APIRouter()
 @router.get(
@@ -66,6 +70,7 @@ def list(
 )
 def store(
         report_store: ReportStore,
+        report_file: UploadFile = File(...),
         db: Session = Depends(get_db),
         report_permission: Report = Security(get_current_user, scopes=["create reports"])
 ):
@@ -75,12 +80,20 @@ def store(
         db.add(new_report)
         db.commit()
         db.refresh(new_report)
-
+        relative_photo_path = save_image_file(report_file, f"reporte_de_{report_store.name}", report_store.missing_id, "reports")
+        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        new_report_file = ReportHasFiles(
+            report_id = new_report.id,
+            path = saved_photo_path,
+            name = f"reporte_de_{report_store.name}",
+        )
+        db.add(new_report_file)
+        db.commit()
+        db.refresh(new_report_file)
         return {
-            "message": "Se ha registrado el reporte correctamente",
-            "data": ReportResponse.model_validate(new_report)
-        }
-
+                "message": "Se ha registrado el reporte correctamente",
+                "data": ReportResponse.model_validate(new_report)
+            }
     except Exception as e:
         db.rollback()
         raise HTTPException(
@@ -119,6 +132,7 @@ def show(
 def update(
         id: int,
         report_update : ReportUpdate,
+        report_file: UploadFile = File(...),
         db: Session = Depends(get_db),
         report_permission: Report = Security(get_current_user, scopes=["update reports"])
 ):
@@ -134,7 +148,16 @@ def update(
             setattr(current_report, key, value)
         db.commit()
         db.refresh(current_report)
-
+        relative_photo_path = save_image_file(report_file, f"reporte_de_{current_report.name}", current_report.missing_id, "reports")
+        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        new_report_file = ReportHasFiles(
+            report_id = current_report.id,
+            path = saved_photo_path,
+            name = f"reporte_de_{current_report.name}",
+        )
+        db.add(new_report_file)
+        db.commit()
+        db.refresh(new_report_file)
         return {
             "message": "Se ha actualizado el reporte correctamente",
             "data": ReportResponse.model_validate(current_report, from_attributes=True)
