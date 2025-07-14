@@ -2,10 +2,14 @@ from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Secu
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import or_, and_
+from services.security.models.category import Category
+from services.security.models.guide import Guide
 from services.security.models.missing import Missing
+from services.security.models.report_has_files import ReportHasFiles
+from services.security.schemas.guide import GuideResponse
 from services.security.schemas.report import ReportResponse
 from services.security.utils.dependency import  get_db
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from services.security.schemas.report import ReportStore
 from services.security.models.report import Report
 from services.security.utils.files import save_image_file
@@ -22,8 +26,9 @@ router = APIRouter()
     "/reports",
     status_code=status.HTTP_201_CREATED
 )
-def store(
+def storeReport(
         report_store: ReportStore,
+        report_file: UploadFile = File(...),
         db: Session = Depends(get_db),
 ):
     try:
@@ -31,7 +36,16 @@ def store(
         db.add(new_report)
         db.commit()
         db.refresh(new_report)
-
+        relative_photo_path = save_image_file(report_file, f"reporte_de_{report_store.name}", report_store.missing_id, "reports")
+        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        new_report_file = ReportHasFiles(
+            report_id = new_report.id,
+            path = saved_photo_path,
+            name = f"reporte_de_{report_store.name}",
+        )
+        db.add(new_report_file)
+        db.commit()
+        db.refresh(new_report_file)
         return {
             "message": "Se ha registrado el reporte correctamente",
             "data": ReportResponse.model_validate(new_report)
@@ -43,6 +57,7 @@ def store(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Error al registrar el reporte: {e}"
         )
+
 def encode_image(path: str) -> str:
     if not os.path.exists(path):
         return None
@@ -53,7 +68,7 @@ def encode_image(path: str) -> str:
     '/missing',
     status_code=status.HTTP_200_OK,
 )
-def list (
+def listMissing (
     page: int = Query(1, ge=1, description="Numero de pagina"),
     size: int = Query(10, ge=1, le=100, description="Solicitudes de desaparecidos por pagina"),
     search: str = Query("",description="Buscar solicitud de desaparecidos"),
@@ -122,7 +137,7 @@ def list (
     '/missing',
     status_code=status.HTTP_201_CREATED,
 )
-def store (
+def storeMissing (
         name: str = Form(...),
         last_name: str = Form(...),
         age: int = Form(...),
@@ -180,4 +195,130 @@ def store (
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al crear la solicitud de desaparecido {e}"
+        )
+
+@router.get('/list-category-faqs', status_code=status.HTTP_200_OK)
+def list_category_faqs(
+        page: int = Query(1, ge=1, description="Número de página"),
+        size: int = Query(10, ge=1, le=100, description="Categorías por página"),
+        db: Session = Depends(get_db)
+):
+    try:
+        params = Params(page=page, size=size)
+        query = db.query(Category).options(selectinload(Category.faqs))
+        response = paginate(query, params)
+        result = []
+        for category in response.items:
+            if category.faqs:
+                result.append({
+                    "id": category.id,
+                    "title": category.title,
+                    "faqs": [{"id": faq.id, "question": faq.question, "answer": faq.answer} for faq in category.faqs]
+                })
+        next_page = page + 1 if page * size < response.total else None
+        prev_page = page - 1 if page > 1 else None
+
+        return {
+            "message": "Se ha obtenido la lista de categorías con FAQs correctamente",
+            "data": result,
+            "total": response.total,
+            "page": response.page,
+            "size": response.size,
+            "links": {
+                "next": f"/api/v1/public/list-category-faqs?page={next_page}&size={size}" if next_page else None,
+                "previous": f"/api/v1/public/list-category-faqs?page={prev_page}&size={size}" if prev_page else None,
+                "first": f"/api/v1/public/list-category-faqs?page=1&size={size}",
+                "last": f"/api/v1/public/list-category-faqs?page={response.pages}&size={size}"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener la lista de preguntas: {e}"
+        )
+
+@router.get('/list-category-guides', status_code=status.HTTP_200_OK)
+def list_category_guides(
+        page: int = Query(1, ge=1, description="Número de página"),
+        size: int = Query(10, ge=1, le=100, description="Categorías por página"),
+        db: Session = Depends(get_db)
+):
+    try:
+        params = Params(page=page, size=size)
+        query = db.query(Category).options(selectinload(Category.guides))
+        response = paginate(query, params)
+        result = []
+        for category in response.items:
+            if category.guides:
+                result.append({
+                    "id": category.id,
+                    "title": category.title,
+                    "guides": [{"id": guide.id, "title": guide.title} for guide in category.guides]
+                })
+
+        next_page = page + 1 if page * size < response.total else None
+        prev_page = page - 1 if page > 1 else None
+
+        return {
+            "message": "Se ha obtenido la lista de categorías con guias correctamente",
+            "data": result,
+            "total": response.total,
+            "page": response.page,
+            "size": response.size,
+            "links": {
+                "next": f"/api/v1/public/list-category-guides?page={next_page}&size={size}" if next_page else None,
+                "previous": f"/api/v1/public/list-category-guides?page={prev_page}&size={size}" if prev_page else None,
+                "first": f"/api/v1/public/list-category-guides?page=1&size={size}",
+                "last": f"/api/v1/public/list-category-guides?page={response.pages}&size={size}"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener la lista de guias: {e}"
+        )
+
+@router.get('/list-guides', status_code=status.HTTP_200_OK)
+def list_guides(
+        page: int = Query(1, ge=1, description="Numero de pagina"),
+        size: int = Query(10, ge=1, le=100, description="Guias por pagina"),
+        search: str = Query("", description="Buscar guia"),
+        db: Session = Depends(get_db)
+):
+    try:
+        params = Params(page=page, size=size)
+        query = db.query(Guide)
+        if search:
+            query = query.filter(
+                or_(
+                    Guide.title.like(f'%{search}%'),
+                    Guide.slug.like(f'%{search}%'),
+                    Guide.subtitle.like(f'%{search}%'),
+                    Guide.content.like(f'%{search}%'),
+                )
+            )
+        response = paginate(query, params)
+
+        next_page = page + 1 if page * size < response.total else None
+        prev_page = page - 1 if page > 1 else None
+        return {
+            "message": "Se ha obtenido la lista de guias correctamente",
+            "data": [GuideResponse.model_validate(guide, from_attributes=True) for guide in response.items],
+            "total": response.total,
+            "page": response.page,
+            "size": response.size,
+            "links": {
+                "next": f"/api/v1/public/list-guides?page={next_page}&size={size}" if next_page else None,
+                "previous": f"/api/v1/public/list-guides?page={prev_page}&size={size}" if prev_page else None,
+                "first": f"/api/v1/public/list-guides?page=1&size={size}",
+                "last": f"/api/v1/public/list-guides?page={response.pages}&size={size}"
+            }
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener la lista de guias {e}"
         )
