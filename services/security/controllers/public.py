@@ -3,9 +3,11 @@ from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import or_, and_
 from services.security.models.category import Category
+from services.security.models.contact_support import ContactSupport
 from services.security.models.guide import Guide
 from services.security.models.missing import Missing
 from services.security.models.report_has_files import ReportHasFiles
+from services.security.schemas.contact_support import ContactSupportStore, ContactSupportResponse
 from services.security.schemas.guide import GuideResponse
 from services.security.schemas.report import ReportResponse
 from services.security.utils.dependency import  get_db
@@ -16,7 +18,6 @@ from services.security.utils.files import save_image_file
 from services.security.schemas.missing import MissingResponse
 from services.security.models.status_missing import StatusMissingEnum
 from datetime import date
-
 import os
 import base64
 import mimetypes
@@ -321,4 +322,25 @@ def list_guides(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al obtener la lista de guias {e}"
+        )
+
+@router.post('/contact-support', status_code=status.HTTP_201_CREATED)
+def storeContactSupport(
+        contactSupportStore: ContactSupportStore,
+        db: Session = Depends(get_db),
+):
+    try:
+        new_contact_support = ContactSupport(**contactSupportStore.model_dump())
+        db.add(new_contact_support)
+        db.commit()
+        db.refresh(new_contact_support)
+        return {
+            "message": "Se ha registrado el contacto de soporte correctamente",
+            "data": ContactSupportResponse.model_validate(new_contact_support)
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al crear el contacto del soporte {e}"
         )
