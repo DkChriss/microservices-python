@@ -3,6 +3,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from services.security.config.database import Base
 from datetime import datetime, date
 from zoneinfo import ZoneInfo
+
+from services.security.models.report import Report
 from services.security.models.status_missing import StatusMissingEnum
 from sqlalchemy import Enum as SQLEnum
 
@@ -10,7 +12,7 @@ class Missing(Base):
     __tablename__ = 'missing'
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=False)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'), nullable=True)
     name: Mapped[str] = mapped_column(Text)
     last_name: Mapped[str] = mapped_column(Text)
     age: Mapped[int] = mapped_column(Integer)
@@ -33,3 +35,4 @@ class Missing(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
 
     user = relationship("User", back_populates="missing")
+    reports: Mapped[list["Report"]] = relationship("Report", back_populates="missing")

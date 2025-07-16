@@ -2,5 +2,13 @@
     {
       "name": "admin",
       "description": "role can do everything"
+    },
+    {
+      "name": "cliente",
+      "description": "client role"
+    },
+    {
+      "name": "visualizador",
+      "description": "viewer role"
     }
 ]

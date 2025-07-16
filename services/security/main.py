@@ -15,6 +15,9 @@ from services.security.controllers.device_registration import router as device_r
 from services.security.controllers.emergency_contact import router as emergency_contact_router
 from services.security.controllers.request import router as request_router
 from services.security.controllers.missing import router as missing_router
+from services.security.controllers.permission import router as permission_router
+from services.security.controllers.report import router as report_router
+from services.security.controllers.public import router as public_router
 #MODELS
 from services.security.models.permission import Permission
 from services.security.models.user import User
@@ -31,6 +34,8 @@ from services.security.models.device_registration import DeviceRegistration
 from services.security.models.emergency_contact import EmergencyContact
 from services.security.models.request import Request
 from services.security.models.missing import Missing
+from services.security.models.report import Report
+from services.security.models.report_has_files import ReportHasFiles
 #SEEDERS
 from services.security.seeders.seed import seed
 import os
@@ -59,6 +64,7 @@ seed()
 app.include_router(user_router, prefix="/api/v1", tags=["users"])
 app.include_router(auth_router, prefix="/api/v1", tags=["auth"])
 app.include_router(role_router, prefix="/api/v1", tags=["roles"])
+app.include_router(permission_router, prefix="/api/v1", tags=["permissions"])
 app.include_router(category_router, prefix="/api/v1", tags=["categories"])
 app.include_router(contact_router, prefix="/api/v1", tags=["contacts-support"])
 app.include_router(guide_router, prefix="/api/v1", tags=["guides"])
@@ -68,4 +74,6 @@ app.include_router(device_registration_router, prefix="/api/v1", tags=["devices-
 app.include_router(emergency_contact_router, prefix="/api/v1", tags=["emergency-contacts"])
 app.include_router(request_router, prefix="/api/v1", tags=["requests"])
 app.include_router(missing_router, prefix="/api/v1", tags=["missing"])
+app.include_router(report_router, prefix="/api/v1", tags=["reports"])
+app.include_router(public_router, prefix="/api/v1/public")
 add_pagination(app)

@@ -1,6 +1,4 @@
-import json
 from datetime import date
-from typing import Dict, Any
 from pydantic import BaseModel
 from services.security.models.status_missing import StatusMissingEnum
 
@@ -18,6 +16,7 @@ class MissingResponse(BaseModel):
     characteristics: str
     reporter_name: str
     reporter_phone: int
+    photo: str = None
 
     class Config:
         from_attributes = True

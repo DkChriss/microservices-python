@@ -1,9 +1,11 @@
-import json
 import os
 from datetime import date
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
 from fastapi_pagination import Params
+from fastapi.responses import JSONResponse
+import base64
 from fastapi_pagination.ext.sqlalchemy import paginate
+from pydantic import BaseModel
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from services.security.models.missing import Missing
@@ -280,4 +282,79 @@ def destroy(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al eliminar la solicitud de desaparecido {e}"
+        )
+
+class UpdateStatusBody(BaseModel):
+    status_missing: StatusMissingEnum
+
+@router.put(
+    '/missing/{id}/update-status',
+    status_code=status.HTTP_200_OK,
+    tags=['missing']
+)
+def updateStatus(
+        id: int,
+        updateStatusBody: UpdateStatusBody,
+        db: Session = Depends(get_db),
+        missing_permission: Missing = Security(get_current_user, scopes=["update missing"])
+):
+    try:
+        missing = db.query(Missing).filter(Missing.id == id).first()
+        if missing is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la solicitud de desaparecido que desea actualizar"
+            )
+        missing.status_missing = updateStatusBody.status_missing
+        db.commit()
+        db.refresh(missing)
+        return {
+            "message": "Se ha actualizado el estado de la solicitud de desaparecido correctamente"
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al actualizar el estado de la solicitud de desaparecido {e}"
+        )
+
+@router.get(
+    '/missing/{id}/images',
+    status_code=status.HTTP_200_OK,
+    tags=['missing']
+)
+def show_images(id: int, db: Session = Depends(get_db)):
+    try:
+        missing = db.query(Missing).filter(Missing.id == id).first()
+        if missing is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el caso de desaparición"
+            )
+
+        photo_path = os.path.join("services", "security", missing.photo)
+        event_photo_path = os.path.join("services", "security", missing.event_photo)
+
+        if not os.path.exists(photo_path) or not os.path.exists(event_photo_path):
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Una o ambas fotos no existen"
+            )
+
+        with open(photo_path, "rb") as f:
+            photo_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+        with open(event_photo_path, "rb") as f:
+            event_photo_base64 = base64.b64encode(f.read()).decode("utf-8")
+
+        return JSONResponse({
+            "photo": photo_base64,
+            "event_photo": event_photo_base64
+        })
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"Error al obtener las imágenes: {e}"
         )

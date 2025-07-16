@@ -230,5 +230,25 @@
   {
     "user_id": 1,
     "permission_id": 58
+  },
+  {
+    "user_id": 1,
+    "permission_id": 59
+  },
+  {
+    "user_id": 1,
+    "permission_id": 60
+  },
+  {
+    "user_id": 1,
+    "permission_id": 61
+  },
+  {
+    "user_id": 1,
+    "permission_id": 62
+  },
+  {
+    "user_id": 1,
+    "permission_id": 63
   }
 ]

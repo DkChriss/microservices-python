@@ -6,7 +6,7 @@ class ContactSupportStore(BaseModel):
     email: EmailStr
     title: str
     message: str
-    user_id: int
+    user_id: int = None
 
 class ContactSupportUpdate(BaseModel):
     id: int = None
