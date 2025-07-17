@@ -1,0 +1,31 @@
+from pydantic import BaseModel
+
+class DeviceStore(BaseModel):
+    user_id: int
+    code: str
+    name: str
+    password: str
+    status: bool = False
+
+class DeviceUpdate(BaseModel):
+    id: int = None
+    user_id: int = None
+    code: str = None
+    name: str = None
+    password: str = None
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    last_name: str
+    second_surname: str
+
+class DeviceResponse(BaseModel):
+    id: int
+    user: UserResponse
+    code: str
+    name: str
+    status: bool
+
+    class Config:
+        from_attributes = True

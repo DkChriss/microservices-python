@@ -1,0 +1,42 @@
+services:
+  api:
+    container_name: api
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: unless-stopped
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /
+    networks:
+      - api-network
+
+  db:
+    container_name: db
+    image: postgres:15
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - api-network
+
+volumes:
+  postgres_data:
+
+networks:
+  api-network:
+    driver: bridge
