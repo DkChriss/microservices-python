@@ -3,5 +3,19 @@
 
 __pycache__
 __pycache__/*
-__pycache__//*
-/__pycache__/
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+#STATICS
+static/*
+
+#ENVIRONMENTS
+.env
+.env.production
+.env.development
+
+#VENV
+.venv
+.venv/*
