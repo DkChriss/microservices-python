@@ -9,7 +9,9 @@ __pycache__/
 *$py.class
 
 #STATICS
-static/*
+static/avatars/*
+static/missing/*
+static/reports/*
 
 #ENVIRONMENTS
 .env
