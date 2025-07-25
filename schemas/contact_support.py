@@ -5,6 +5,7 @@ class ContactSupportStore(BaseModel):
     email: EmailStr
     title: str
     message: str
+    phone: str = None
     user_id: int = None
 
 class ContactSupportUpdate(BaseModel):
@@ -13,6 +14,7 @@ class ContactSupportUpdate(BaseModel):
     email: EmailStr = None
     title: str = None
     message: str = None
+    phone: str = None
     user_id: int = None
 
 class ContactSupportResponse(BaseModel):
@@ -21,6 +23,7 @@ class ContactSupportResponse(BaseModel):
     email: EmailStr = None
     title: str = None
     message: str = None
+    phone: str = None
 
     class Config:
         from_attributes = True

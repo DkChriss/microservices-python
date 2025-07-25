@@ -12,6 +12,7 @@ class ContactSupport(Base):
     email: Mapped[str] = mapped_column(Text)
     title: Mapped[str] = mapped_column(Text)
     message: Mapped[str] = mapped_column(Text)
+    phone: Mapped[str] = mapped_column(Text, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")))
     updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.now(ZoneInfo("America/La_Paz")), onupdate=datetime.now(ZoneInfo("America/La_Paz")))
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey('users.id'), nullable=True)
