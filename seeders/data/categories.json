@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Inicio Rápido",
+    "slug": "inicio-rapido"
+  },
+  {
+    "title": "Cuenta y Seguridad",
+    "slug": "cuenta-y-seguridad"
+  },
+  {
+    "title": "Facturación y Pagos",
+    "slug": "facturacion-y-pagos"
+  },
+  {
+    "title": "Integraciones",
+    "slug": "integraciones"
+  },
+  {
+    "title": "Solución de Problemas",
+    "slug": "solucion-de-problemas"
+  },
+  {
+    "title": "Notificaciones",
+    "slug": "notificaciones"
+  },
+  {
+    "title": "Configuración de Usuario",
+    "slug": "configuracion-de-usuario"
+  },
+  {
+    "title": "Soporte Técnico",
+    "slug": "soporte-tecnico"
+  },
+  {
+    "title": "Privacidad y Datos",
+    "slug": "privacidad-y-datos"
+  },
+  {
+    "title": "Actualizaciones del Sistema",
+    "slug": "actualizaciones-del-sistema"
+  }
+]

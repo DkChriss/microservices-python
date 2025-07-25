@@ -1,0 +1,52 @@
+[
+  {
+    "category_id": 1,
+    "question": "¿Cómo empiezo a usar la plataforma?",
+    "answer": "Puedes comenzar registrándote con tu correo electrónico y siguiendo el asistente de configuración inicial."
+  },
+  {
+    "category_id": 1,
+    "question": "¿Necesito instalar algo para empezar?",
+    "answer": "No, nuestra plataforma es 100% web. Solo necesitas un navegador actualizado."
+  },
+  {
+    "category_id": 2,
+    "question": "¿Cómo cambio mi contraseña?",
+    "answer": "Ve a Configuración > Seguridad y selecciona 'Cambiar contraseña'."
+  },
+  {
+    "category_id": 2,
+    "question": "¿Qué hago si olvidé mi contraseña?",
+    "answer": "Haz clic en '¿Olvidaste tu contraseña?' en la página de inicio de sesión y sigue las instrucciones."
+  },
+  {
+    "category_id": 3,
+    "question": "¿Qué métodos de pago aceptan?",
+    "answer": "Aceptamos tarjetas de crédito, débito y pagos mediante PayPal."
+  },
+  {
+    "category_id": 3,
+    "question": "¿Dónde puedo ver mis facturas?",
+    "answer": "Accede a tu cuenta y ve a la sección de Facturación para ver y descargar tus facturas."
+  },
+  {
+    "category_id": 4,
+    "question": "¿Cómo conecto mi cuenta con WhatsApp?",
+    "answer": "Dirígete a Integraciones y selecciona WhatsApp. Sigue las instrucciones para escanear el código QR con tu app de WhatsApp."
+  },
+  {
+    "category_id": 5,
+    "question": "La aplicación no carga, ¿qué hago?",
+    "answer": "Verifica tu conexión a internet. Si el problema persiste, limpia la caché o contacta a soporte."
+  },
+  {
+    "category_id": 6,
+    "question": "¿Puedo desactivar las notificaciones por correo?",
+    "answer": "Sí, en Configuración > Notificaciones puedes activar o desactivar las notificaciones por correo electrónico."
+  },
+  {
+    "category_id": 7,
+    "question": "¿Puedo cambiar mi nombre de usuario?",
+    "answer": "Sí, desde Configuración > Perfil puedes editar tu nombre de usuario."
+  }
+]
