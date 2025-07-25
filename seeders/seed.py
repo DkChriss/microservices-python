@@ -2,6 +2,9 @@ from passlib.context import CryptContext
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from config.database import engine
+from models.category import Category
+from models.faq import Faq
+from models.guide import Guide
 from models.permission import Permission
 from models.role import Role
 from models.user import User
@@ -19,7 +22,7 @@ def seed_model(path: str, BaseModel, engine = engine):
     session = Session(bind=engine)
 
     try:
-        with open(path) as f:
+        with open(path, encoding='utf-8') as f:
             data = json.load(f)
 
         for entry in data:
@@ -51,4 +54,8 @@ def seed():
     seed_model('seeders/data/role_has_permissions.json', RoleHasPermissions)
     seed_model('seeders/data/user_has_permissions.json', UserHasPermissions)
     seed_model('seeders/data/user_has_roles.json', UserHasRoles)
+    seed_model('seeders/data/categories.json', Category)
+    seed_model('seeders/data/guides.json', Guide)
+    seed_model('seeders/data/faqs.json', Faq)
+
 

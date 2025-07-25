@@ -1,0 +1,72 @@
+[
+  {
+    "category_id": 1,
+    "title": "Primeros pasos en la plataforma",
+    "subtitle": "Configura tu cuenta y da los primeros pasos",
+    "content": "Esta guía te ayudará a crear tu cuenta, verificar tu correo electrónico y comenzar a explorar las funcionalidades básicas.",
+    "slug": "primeros-pasos-en-la-plataforma"
+  },
+  {
+    "category_id": 2,
+    "title": "Cambia tu contraseña de forma segura",
+    "subtitle": "Evita accesos no autorizados con una nueva contraseña",
+    "content": "Accede a Configuración > Seguridad y sigue las instrucciones para actualizar tu contraseña de manera segura.",
+    "slug": "cambiar-contrasena-segura"
+  },
+  {
+    "category_id": 3,
+    "title": "Actualiza tus métodos de pago",
+    "subtitle": "Gestiona tus tarjetas y formas de pago",
+    "content": "Aprende a agregar, modificar o eliminar métodos de pago desde la sección de Facturación.",
+    "slug": "actualizar-metodos-de-pago"
+  },
+  {
+    "category_id": 4,
+    "title": "Conecta tu cuenta con WhatsApp",
+    "subtitle": "Guía paso a paso para integrar WhatsApp Business",
+    "content": "Ve a Integraciones > WhatsApp, genera el código QR y escanéalo desde tu app de WhatsApp Business.",
+    "slug": "conectar-whatsapp"
+  },
+  {
+    "category_id": 5,
+    "title": "Resuelve problemas comunes",
+    "subtitle": "Errores frecuentes y sus soluciones",
+    "content": "Esta guía aborda problemas típicos como errores de carga, sesiones que expiran y más.",
+    "slug": "resolver-problemas-comunes"
+  },
+  {
+    "category_id": 6,
+    "title": "Configura tus notificaciones",
+    "subtitle": "Recibe solo las alertas que te interesan",
+    "content": "Personaliza qué tipo de notificaciones recibirás por correo, dentro de la app o por SMS.",
+    "slug": "configurar-notificaciones"
+  },
+  {
+    "category_id": 7,
+    "title": "Personaliza tu perfil de usuario",
+    "subtitle": "Haz tu cuenta más personal",
+    "content": "Edita tu nombre, imagen de perfil, idioma y otras preferencias desde el panel de usuario.",
+    "slug": "personalizar-perfil"
+  },
+  {
+    "category_id": 8,
+    "title": "Contacta al soporte técnico",
+    "subtitle": "Recibe ayuda del equipo de soporte",
+    "content": "Sigue estos pasos para enviar un ticket, iniciar un chat o escribirnos por correo electrónico.",
+    "slug": "contactar-soporte-tecnico"
+  },
+  {
+    "category_id": 9,
+    "title": "Administra tu privacidad",
+    "subtitle": "Controla cómo usamos tus datos",
+    "content": "Configura qué información compartes y consulta nuestras políticas de privacidad.",
+    "slug": "administrar-privacidad"
+  },
+  {
+    "category_id": 10,
+    "title": "Conoce las novedades de la plataforma",
+    "subtitle": "Nuevas funciones y mejoras",
+    "content": "Consulta las funcionalidades más recientes, mejoras en rendimiento y corrección de errores.",
+    "slug": "novedades-plataforma"
+  }
+]

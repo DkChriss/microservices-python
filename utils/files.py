@@ -9,7 +9,7 @@ def save_image_file(avatar: UploadFile, name: str, last_name: str, code: str, pa
     file_extension = avatar.filename.split(".")[-1]
     filename = f"{name}_{last_name}_{code}.{file_extension}".replace(" ", "_")
     relative_path = os.path.join("static", f"{path}", filename)
-    absolute_path = os.path.join("services", "security", relative_path)
+    absolute_path = os.path.join(relative_path)
 
     if os.path.exists(absolute_path):
         os.remove(absolute_path)

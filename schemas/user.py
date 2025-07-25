@@ -1,15 +1,15 @@
 from pydantic import BaseModel, EmailStr
-from typing import List
+from typing import List, Optional
 from models.status_enum import StatusEnum
 
 class UserResponse(BaseModel):
     id: int
-    code: str
+    code: Optional[str] = None
     name: str
     last_name: str
     second_surname: str
     email: EmailStr
-    status: StatusEnum
+    status: StatusEnum = None
     phone: int
 
     class Config:
@@ -27,6 +27,6 @@ class UserStore(BaseModel):
     name: str
     last_name: str
     second_surname: str
-    email: str
+    email: EmailStr
     password: str
-    phone: str
+    phone: int

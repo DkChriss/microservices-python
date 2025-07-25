@@ -3,7 +3,7 @@ from datetime import datetime
 
 class ReportStore(BaseModel):
     missing_id: int
-    user_id: int
+    user_id: int = None
     name: str
     email: str
     phone: str
