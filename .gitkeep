@@ -1,0 +1,4 @@
+mkdir -p static/reports static/missing static/avatars
+touch static/reports/.gitkeep
+touch static/missing/.gitkeep
+touch static/avatars/.gitkeep
