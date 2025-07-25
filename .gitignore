@@ -9,10 +9,12 @@ __pycache__/
 *$py.class
 
 #STATICS
-static/avatars/*
-static/missing/*
-static/reports/*
-
+static/avatars/*.png
+static/avatars/*.jpg
+static/missing/*.png
+static/missing/*.jpg
+static/reports/*.png
+static/reports/*.jpg
 #ENVIRONMENTS
 .env
 .env.production
