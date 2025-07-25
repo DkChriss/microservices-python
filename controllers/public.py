@@ -1,6 +1,10 @@
+import datetime
+from typing import Optional
+
 from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
+from passlib.context import CryptContext
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session, selectinload
 from models.category import Category
@@ -12,40 +16,65 @@ from models.user_has_roles import UserHasRoles
 from schemas.contact_support import ContactSupportStore, ContactSupportResponse
 from schemas.guide import GuideResponse
 from schemas.report import ReportResponse
-from schemas.user import UserStore
+from schemas.user import UserStore, UserResponse
 from utils.dependency import  get_db
-from schemas.report import ReportStore
 from models.report import Report
 from utils.files import save_image_file
 from schemas.missing import MissingResponse
 from models.status_missing import StatusMissingEnum
 from models.user import User
+import datetime
 from datetime import date
 import os
 import base64
 import mimetypes
 router = APIRouter()
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 @router.post(
     "/reports",
     status_code=status.HTTP_201_CREATED
 )
-def storeReport(
-        report_store: ReportStore,
+def store_reports(
+        missing_id: int = Form(...),
+        user_id: Optional[int] = Form(None),
+        name: str = Form(...),
+        email: str = Form(...),
+        phone: str = Form(...),
+        location: str = Form(...),
+        date: date = Form(...),
+        description: str = Form(...),
         report_file: UploadFile = File(...),
         db: Session = Depends(get_db),
 ):
     try:
-        new_report = Report(**report_store.model_dump())
+        missing = db.query(Missing).filter(Missing.id == missing_id).first()
+
+        if missing is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe el reporte de desaparicion que desea realizar un reporte"
+            )
+
+        new_report = Report(
+            missing_id = missing_id,
+            user_id = user_id,
+            name = name,
+            email= email,
+            phone = phone,
+            location = location,
+            date = date,
+            description = description
+        )
         db.add(new_report)
         db.commit()
         db.refresh(new_report)
-        relative_photo_path = save_image_file(report_file, f"reporte_de_{report_store.name}", report_store.missing_id, "reports")
-        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        relative_photo_path = save_image_file(report_file, f"reporte_de_{new_report.name}", new_report.missing_id,new_report.id, "reports")
+        saved_photo_path = os.path.join(relative_photo_path)
         new_report_file = ReportHasFiles(
             report_id = new_report.id,
             path = saved_photo_path,
-            name = f"reporte_de_{report_store.name}",
+            name = f"reporte_de_{new_report.name}",
         )
         db.add(new_report_file)
         db.commit()
@@ -162,10 +191,10 @@ def storeMissing (
 
     try:
         relative_photo_path = save_image_file(photo, f"perfil_{name}", last_name, disappearance_date, "missing")
-        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        saved_photo_path = os.path.join(relative_photo_path)
 
         relative_photo_event_path = save_image_file(event_photo, f"evento_{name}", last_name, disappearance_date, "missing")
-        saved_event_photo_path = os.path.join("services", "security", relative_photo_event_path)
+        saved_event_photo_path = os.path.join(relative_photo_event_path)
 
         new_missing = Missing(
             name=name,
@@ -348,20 +377,27 @@ def storeContactSupport(
             detail=f"Error al crear el contacto del soporte {e}"
         )
 
-@router.post('/users', status_code=status.HTTP_201_CREATED)
+@router.post('/register-user', status_code=status.HTTP_201_CREATED)
 def storeUsers(
         user_store: UserStore,
         db: Session = Depends(get_db),
 ):
     try:
+        user_store.password = bcrypt_context.hash(user_store.password)
         new_user = User(**user_store.model_dump())
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
-
+        client_role =  UserHasRoles(
+            role_id=2,
+            user_id=new_user.id
+        )
+        db.add(client_role)
+        db.commit()
+        db.refresh(client_role)
         return {
             "message": "Se ha registrado el usuario correctamente",
-            "data": ContactSupportResponse.model_validate(new_user)
+            "data": UserResponse.model_validate(new_user)
         }
     except Exception as e:
         db.rollback()
