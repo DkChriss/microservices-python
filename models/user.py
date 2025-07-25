@@ -10,12 +10,12 @@ class User(Base):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(Integer, autoincrement=True, primary_key=True)
-    code: Mapped[str] = mapped_column(Text)
+    code: Mapped[str] = mapped_column(Text, nullable=True)
     name: Mapped[str] = mapped_column(Text)
     last_name: Mapped[str] = mapped_column(Text)
     second_surname: Mapped[str] = mapped_column(Text)
     email: Mapped[str] = mapped_column(Text)
-    avatar: Mapped[str] = mapped_column(Text)
+    avatar: Mapped[str] = mapped_column(Text, nullable=True)
     status: Mapped[StatusEnum] = mapped_column(
         SQLEnum(StatusEnum, name="status"),
         default=StatusEnum.online,

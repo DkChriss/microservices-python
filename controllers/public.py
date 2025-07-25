@@ -1,23 +1,25 @@
-from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Security, UploadFile, File
+from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, UploadFile, File
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session, selectinload
-
 from models.category import Category
 from models.contact_support import ContactSupport
 from models.guide import Guide
 from models.missing import Missing
 from models.report_has_files import ReportHasFiles
+from models.user_has_roles import UserHasRoles
 from schemas.contact_support import ContactSupportStore, ContactSupportResponse
 from schemas.guide import GuideResponse
 from schemas.report import ReportResponse
+from schemas.user import UserStore
 from utils.dependency import  get_db
 from schemas.report import ReportStore
 from models.report import Report
 from utils.files import save_image_file
 from schemas.missing import MissingResponse
 from models.status_missing import StatusMissingEnum
+from models.user import User
 from datetime import date
 import os
 import base64
@@ -344,4 +346,26 @@ def storeContactSupport(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al crear el contacto del soporte {e}"
+        )
+
+@router.post('/users', status_code=status.HTTP_201_CREATED)
+def storeUsers(
+        user_store: UserStore,
+        db: Session = Depends(get_db),
+):
+    try:
+        new_user = User(**user_store.model_dump())
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
+
+        return {
+            "message": "Se ha registrado el usuario correctamente",
+            "data": ContactSupportResponse.model_validate(new_user)
+        }
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al registrar el usuario {e}"
         )

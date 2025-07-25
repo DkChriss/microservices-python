@@ -22,3 +22,11 @@ class UserRoles(BaseModel):
 class UserPermissions(BaseModel):
     user_id: int
     permissions_ids: List[int]
+
+class UserStore(BaseModel):
+    name: str
+    last_name: str
+    second_surname: str
+    email: str
+    password: str
+    phone: str
