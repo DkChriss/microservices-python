@@ -35,8 +35,22 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="El numero de celular o contraseña estan incorrectas"
             )
-        roles = [role.name for role in user.roles]
-        permissions = [permission.action for permission in user.permissions]
+        roles = []
+        permissions = []
+
+        for role in user.roles:
+            if role.name not in roles:
+                roles.append(role.name)
+            #ROLE PERMISSIONS
+            for permission in role.permissions:
+                if permission.action not in permissions:
+                    permissions.append(permission.action)
+
+        #USER HAS PERMISSIONS
+        for permission in user.permissions:
+            if permission.action not in permissions:
+                permissions.append(permission.action)
+
         token = create_access_token(user.phone, ACCESS_TOKEN_EXPIRE, user.id, permissions, roles)
         return {
             'token': token,
