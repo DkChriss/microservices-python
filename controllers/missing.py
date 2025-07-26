@@ -94,10 +94,10 @@ def store (
 
     try:
         relative_photo_path = save_image_file(photo, f"perfil_{name}", last_name, disappearance_date, "missing")
-        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        saved_photo_path = os.path.join(relative_photo_path)
 
         relative_photo_event_path = save_image_file(event_photo, f"evento_{name}", last_name, disappearance_date, "missing")
-        saved_event_photo_path = os.path.join("services", "security", relative_photo_event_path)
+        saved_event_photo_path = os.path.join(relative_photo_event_path)
 
         new_missing = Missing(
             user_id=user_id,
@@ -199,18 +199,18 @@ def update(
             )
         if photo:
             new_relative_photo_path = save_image_file(photo, f"perfil_{name}", last_name, disappearance_date, "missing")
-            new_photo_path = os.path.join("services", "security", new_relative_photo_path)
+            new_photo_path = os.path.join(new_relative_photo_path)
 
-            old_photo_path = os.path.join("services", "security", current_missing.photo)
+            old_photo_path = os.path.join(current_missing.photo)
             if os.path.exists(old_photo_path) and old_photo_path != new_photo_path:
                 os.remove(old_photo_path)
             current_missing.photo = new_photo_path
 
         if event_photo:
             new_relative_event_photo_path = save_image_file(photo, f"evento_{name}", last_name, disappearance_date, "missing")
-            new_event_photo_path = os.path.join("services", "security", new_relative_event_photo_path)
+            new_event_photo_path = os.path.join(new_relative_event_photo_path)
 
-            old_event_photo_path = os.path.join("services", "security", current_missing.event_photo)
+            old_event_photo_path = os.path.join(current_missing.event_photo)
             if os.path.exists(old_event_photo_path) and old_event_photo_path != new_photo_path:
                 os.remove(old_event_photo_path)
             current_missing.event_photo = new_event_photo_path
@@ -268,10 +268,10 @@ def destroy(
             )
         db.delete(missing)
         db.commit()
-        photo_path = os.path.join("services", "security", missing.photo)
+        photo_path = os.path.join(missing.photo)
         if os.path.exists(photo_path):
             os.remove(photo_path)
-        event_photo_path = os.path.join("services","security", missing.event_photo)
+        event_photo_path = os.path.join(missing.event_photo)
         if os.path.exists(event_photo_path):
             os.remove(event_photo_path)
         return {
@@ -332,8 +332,8 @@ def show_images(id: int, db: Session = Depends(get_db)):
                 detail="No existe el caso de desaparición"
             )
 
-        photo_path = os.path.join("services", "security", missing.photo)
-        event_photo_path = os.path.join("services", "security", missing.event_photo)
+        photo_path = os.path.join(missing.photo)
+        event_photo_path = os.path.join(missing.event_photo)
 
         if not os.path.exists(photo_path) or not os.path.exists(event_photo_path):
             raise HTTPException(

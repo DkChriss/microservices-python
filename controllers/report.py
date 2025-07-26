@@ -81,7 +81,7 @@ def store(
         db.commit()
         db.refresh(new_report)
         relative_photo_path = save_image_file(report_file, f"reporte_de_{report_store.name}", report_store.missing_id, "reports")
-        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        saved_photo_path = os.path.join(relative_photo_path)
         new_report_file = ReportHasFiles(
             report_id = new_report.id,
             path = saved_photo_path,
@@ -149,7 +149,7 @@ def update(
         db.commit()
         db.refresh(current_report)
         relative_photo_path = save_image_file(report_file, f"reporte_de_{current_report.name}", current_report.missing_id, "reports")
-        saved_photo_path = os.path.join("services", "security", relative_photo_path)
+        saved_photo_path = os.path.join(relative_photo_path)
         new_report_file = ReportHasFiles(
             report_id = current_report.id,
             path = saved_photo_path,
