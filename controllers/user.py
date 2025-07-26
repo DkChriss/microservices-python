@@ -90,7 +90,7 @@ def store(
 
     try:
         relative_avatar_path = save_image_file(avatar, name, last_name, code, "avatars")
-        saved_avatar_path = os.path.join("services", "security", relative_avatar_path)
+        saved_avatar_path = os.path.join(relative_avatar_path)
 
         hashed_password = bcrypt_context.hash(password)
 
@@ -186,9 +186,9 @@ def update(
 
         if avatar:
             new_relative_avatar_path = save_image_file(avatar, name, last_name, code,"avatars")
-            new_avatar_path = os.path.join("services", "security", new_relative_avatar_path)
+            new_avatar_path = os.path.join(new_relative_avatar_path)
 
-            old_avatar_path = os.path.join("services", "security", current_user.avatar)
+            old_avatar_path = os.path.join(current_user.avatar)
             if os.path.exists(old_avatar_path) and old_avatar_path != new_avatar_path:
                 os.remove(old_avatar_path)
 
@@ -242,7 +242,7 @@ def destroy(
             )
         db.delete(user)
         db.commit()
-        avatar_path = os.path.join("services", "security", user.avatar)
+        avatar_path = os.path.join(user.avatar)
         if os.path.exists(avatar_path):
             os.remove(avatar_path)
         return {
@@ -333,7 +333,7 @@ def get_avatar(id: int, db: Session = Depends(get_db)):
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="No existe el usuario que desea obtener el avatar"
             )
-        saved_avatar_path = os.path.join("services", "security", user.avatar)
+        saved_avatar_path = os.path.join(user.avatar)
         if not os.path.exists(saved_avatar_path):
             return HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,

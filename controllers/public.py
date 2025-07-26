@@ -131,7 +131,7 @@ def listMissing (
         response = paginate(query,params)
         result = []
         for missing in response.items:
-            photo_path = os.path.join("services", "security", missing.event_photo)
+            photo_path = os.path.join(missing.photo)
 
             result.append({
                 "id": missing.id,

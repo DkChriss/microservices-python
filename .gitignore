@@ -11,10 +11,13 @@ __pycache__/
 #STATICS
 static/avatars/*.png
 static/avatars/*.jpg
+static/avatars/*.jpeg
 static/missing/*.png
 static/missing/*.jpg
+static/missing/*.jpeg
 static/reports/*.png
 static/reports/*.jpg
+static/reports/*.jpeg
 #ENVIRONMENTS
 .env
 .env.production
