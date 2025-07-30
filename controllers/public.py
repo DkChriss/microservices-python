@@ -405,3 +405,27 @@ def storeUsers(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Error al registrar el usuario {e}"
         )
+
+@router.get('/guides/{id}', status_code=status.HTTP_200_OK)
+def show(
+        id: int,
+        db: Session = Depends(get_db),
+):
+    try:
+        guide = db.query(Guide).filter(Guide.id == id).first()
+        if guide is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="No existe la guia que desea obtener"
+            )
+        return {
+            "message": "Se ha obtenido la guia correctamente",
+            "data": GuideResponse.model_validate(guide, from_attributes=True)
+        }
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error al obtener la guia {e}"
+        )
