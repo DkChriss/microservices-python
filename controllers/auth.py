@@ -27,13 +27,14 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="El numero de celular o contraseña estan incorrectas"
+            detail="El número de celular o contraseña están incorrectas"
         )
+
     try:
         if not verify_password(form_data.password, user.password):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="El numero de celular o contraseña estan incorrectas"
+                detail="El número de celular o contraseña están incorrectas"
             )
         roles = []
         permissions = []
@@ -57,6 +58,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             'token_type': 'bearer',
             'user': UserResponse.model_validate(user),
         }
+
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
