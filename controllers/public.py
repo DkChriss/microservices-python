@@ -5,6 +5,7 @@ from fastapi import APIRouter, status, Query, Depends, HTTPException, Form, Uplo
 from fastapi_pagination import Params
 from fastapi_pagination.ext.sqlalchemy import paginate
 from passlib.context import CryptContext
+from pydantic import EmailStr
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import Session, selectinload
 from models.category import Category
@@ -379,12 +380,38 @@ def storeContactSupport(
 
 @router.post('/register-user', status_code=status.HTTP_201_CREATED)
 def storeUsers(
-        user_store: UserStore,
+        code: str = Form(...),
+        name: str = Form(...),
+        last_name: str = Form(...),
+        second_surname: str = Form(...),
+        email: EmailStr = Form(...),
+        password: str = Form(...),
+        phone: int = Form(...),
+        token_firebase: str = Form(None),
+        avatar: UploadFile = File(...),
         db: Session = Depends(get_db),
 ):
+    saved_avatar_path = None
+
     try:
-        user_store.password = bcrypt_context.hash(user_store.password)
-        new_user = User(**user_store.model_dump())
+        relative_avatar_path = save_image_file(avatar, name, last_name, code, "avatars")
+        saved_avatar_path = os.path.join(relative_avatar_path)
+
+        hashed_password = bcrypt_context.hash(password)
+
+        new_user = User(
+            code=code,
+            name=name,
+            last_name=last_name,
+            second_surname=second_surname,
+            email=email,
+            avatar=relative_avatar_path,
+            status='online',
+            password=hashed_password,
+            phone=phone,
+            token_firebase=token_firebase or ""
+        )
+
         db.add(new_user)
         db.commit()
         db.refresh(new_user)
